@@ -323,6 +323,17 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 .crow-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .crow-main .mono{overflow-wrap:anywhere}
 .crow-main small{color:var(--muted);font-size:.82rem;line-height:1.3}
+.qrow{display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--line)}
+.qrow:last-child{border-bottom:0}
+.qtop{display:flex;align-items:center;gap:10px}
+.qtop .crow-main b{font-weight:600;font-size:.95rem;line-height:1.3}
+.qtop input{width:84px;flex:none;text-align:center;font:700 1.15rem/1 var(--f-display)}
+.yn{flex:none;min-width:34px;text-align:center;font:700 .8rem/1 var(--f-display);padding:6px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.yn.y{background:var(--in-bg);color:var(--in)} .yn.n{background:var(--warn-bg);color:var(--warn)}
+.cm-in{font-size:.92rem!important;padding:9px 11px!important}
+.crow .crow-act{display:flex;gap:8px;align-items:center;margin-top:6px}
+.crow .crow-act .cm-in{flex:1}
+.list-meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem;color:var(--muted)}
 .crow .x{border:0;background:transparent;color:var(--muted);width:32px;height:32px;border-radius:50%;flex:none}
 /* live scanner */
 .scanner{position:fixed;inset:0;z-index:70;background:#000;display:flex;flex-direction:column;color:#fff}
@@ -504,7 +515,9 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
   <section class="panel" id="p-count" hidden>
     <div><h2>Inventory count</h2>
       <p class="help intro" id="countIntro">Scan every serialized unit in your truck and storage. Then compare against your records or the inventory team's count list.</p></div>
-    <div id="countEmpty" class="empty"><h3>No count in progress</h3><p>Counting doesn't change your stock. It builds a separate list you can compare and save to Excel.</p><button class="btn primary" type="button" id="countStart">Start a Count</button></div>
+    <div id="countEmpty" class="empty"><h3>No count in progress</h3><p>Got a count list from the inventory team? Upload it, scan everything you have, count the non-serialized items, and Stock Tracker fills in the list for you to send back. Counting doesn't change your stock.</p>
+      <button class="btn primary" type="button" id="countStartList">Upload Count List</button>
+      <button class="btn ghost" type="button" id="countStart">Count Without a List</button></div>
     <div id="countActive" class="panel" hidden>
       <div class="count-stats">
         <div class="stat"><b class="num" id="cs-scanned">0</b><span>Scanned</span></div>
@@ -525,6 +538,8 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
       </div>
       <div id="listBox"></div>
       <div class="list" id="cmpList"></div>
+      <div id="qtyBox"></div>
+      <div id="finalBox"></div>
       <div class="row" style="flex-wrap:wrap">
         <button class="btn brand block" type="button" id="countExport">Save Count to Excel</button>
         <button class="btn danger block" type="button" id="countEnd">End Count</button>
@@ -1303,6 +1318,7 @@ function openMailSheet(o){   // {title, note, to, subject, body, extra}
   $("detailBody").innerHTML=`
     <div class="sheet-head"><h2 id="detailH">${esc(o.title)}</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>
     ${o.note?`<div class="note warn">${esc(o.note)}</div>`:""}
+    ${o.pre||""}
     <div class="mail-box">
       <dl class="kv-plain"><dt>To</dt><dd style="user-select:all">${esc(o.to)}</dd><dt>Subject</dt><dd>${esc(o.subject)}</dd></dl>
       <pre id="mailBody">${esc(o.body)}</pre>
@@ -1886,11 +1902,21 @@ const CK="techstock.count";
 let COUNT = lsGet(CK, null);   // {startedAt, items:[{code,key,ts}], list:{file,loadedAt,headers,rows,col}|null}
 let cmpMode="records";
 function saveCount(){ if(!lsSet(CK, COUNT)) toast("Couldn't save the count on this phone. Save it to Excel now."); }
-$("countStart").addEventListener("click",()=>{ COUNT={startedAt:Date.now(), items:[], list:null}; saveCount(); renderCount(); });
+$("countStart").addEventListener("click",()=>{ COUNT={startedAt:Date.now(), items:[], list:null}; cmpMode="records"; saveCount(); renderCount(); });
+$("countStartList").addEventListener("click",()=>{ COUNT={startedAt:Date.now(), items:[], list:null}; cmpMode="list"; saveCount(); renderCount(); $("listIn").click(); });
+if(COUNT && COUNT.list) cmpMode="list";
 
+/* a MAC barcode that's on the inventory list counts as its serial */
+const macKey=v=>keyOf(v).replace(/[:.\-]/g,"");
+function resolveCode(code){
+  const L=COUNT&&COUNT.list;
+  if(L && L.kind==="xplore"){ const k=macKey(code); if(k.length===12){ const hit=L.x.serials.find(r=>r.mac && macKey(r.mac)===k); if(hit) return {code:hit.serial, viaMac:true}; } }
+  return {code:String(code||"").trim(), viaMac:false};
+}
 function countAdd(code){
-  code=String(code||"").trim(); const key=keyOf(code); if(!key) return "empty";
   if(!COUNT) return "none";
+  const res=resolveCode(code); code=res.code; const key=keyOf(code); if(!key) return "empty";
+  if(res.viaMac){ if(COUNT.items.some(i=>i.key===key)) return "dup"; COUNT.items.unshift({code, key, ts:Date.now()}); saveCount(); renderCount(); return "added"; }
   if(isMac(code)) return "mac";
   if(COUNT.items.some(i=>i.key===key)) return "dup";
   COUNT.items.unshift({code, key, ts:Date.now()}); saveCount(); renderCount(); return "added";
@@ -1911,12 +1937,56 @@ function recordNote(key){
 }
 
 /* the inventory team's list */
+const cellText=v=>v==null?"":(typeof v==="number"&&Number.isInteger(v))?v.toFixed(0):String(v).trim();
+function b64FromBuf(buf){ let out="", b=new Uint8Array(buf); for(let i=0;i<b.length;i+=0x8000) out+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000)); return btoa(out); }
+function bufFromB64(t){ const x=atob(t), u=new Uint8Array(x.length); for(let i=0;i<x.length;i++) u[i]=x.charCodeAt(i); return u; }
+/* The inventory team's count list: a Serial Number section, a Non Serialized Items section with
+   quantities, and an Additional Units section. Returns null for any other layout. */
+function parseXploreList(ws){
+  if(!ws || !ws["!ref"]) return null;
+  const R=XLSX.utils.decode_range(ws["!ref"]), lastC=Math.max(R.e.c,6);
+  const cell=(r,c)=>{ const x=ws[XLSX.utils.encode_cell({r,c})]; return x?cellText(x.v):""; };
+  const rowVals=r=>{ const v=[]; for(let c=0;c<=lastC;c++) v[c]=cell(r,c); return v; };
+  const mapHdr=v=>{ const m={}; v.forEach((h,c)=>{ const t=h.toLowerCase(); if(!t) return;
+    if(m.serial==null && /serial/.test(t) && !/non.?serial/.test(t)) m.serial=c;
+    else if(m.mac==null && /\bmac\b/.test(t)) m.mac=c;
+    else if(m.qty==null && /^(quantity|qty)/.test(t)) m.qty=c;
+    else if(m.part==null && /part/.test(t)) m.part=c;
+    else if(m.desc==null && /desc/.test(t)) m.desc=c;
+    else if(m.tech==null && /tech/.test(t)) m.tech=c;
+    else if(m.yn==null && /^y\s*\/\s*n$/.test(t)) m.yn=c;
+    else if(m.cm==null && /comment|note/.test(t)) m.cm=c; });
+    if(m.yn==null) m.yn=5; if(m.cm==null) m.cm=6; return m; };
+  const x={serials:[], qty:[], serCols:null, qtyCols:null, addHdr:null, addCols:null, addLast:null, lastRow:R.e.r};
+  let mode=null, hdr=null, addNext=false;
+  for(let r=R.s.r;r<=R.e.r;r++){
+    const v=rowVals(r), filled=v.filter(Boolean); if(!filled.length) continue;
+    const first=filled[0].toLowerCase();
+    if(/non.?serial/.test(first) && v.some(t=>/^(quantity|qty)/i.test(t))){ mode="qty"; hdr=mapHdr(v); x.qtyCols=hdr; continue; }
+    if(filled.length===1 && /additional/.test(first)){ mode="add"; addNext=true; continue; }
+    if(/serial/.test(first) && v.some(t=>/part|desc/i.test(t))){
+      hdr=mapHdr(v);
+      if(addNext || mode==="add" || x.serCols){ x.addHdr=r; x.addCols=hdr; mode="add"; addNext=false; }
+      else { mode="ser"; x.serCols=hdr; }
+      continue;
+    }
+    if(mode==="ser" && v[hdr.serial]) x.serials.push({r, serial:v[hdr.serial], key:keyOf(v[hdr.serial]), mac:hdr.mac!=null?v[hdr.mac]:"", part:v[hdr.part]||"", desc:v[hdr.desc]||"", tech:hdr.tech!=null?v[hdr.tech]:""});
+    else if(mode==="qty" && hdr.qty!=null && (v[hdr.part]||v[hdr.desc])) x.qty.push({r, k:"q"+r, part:v[hdr.part]||"", desc:v[hdr.desc]||"", expected:Number(v[hdr.qty])||0, tech:hdr.tech!=null?v[hdr.tech]:""});
+    else if(mode==="add" && x.addHdr!=null) x.addLast=r;
+  }
+  if(!x.serCols || (!x.serials.length && !x.qty.length)) return null;
+  const t={}; [...x.serials,...x.qty].forEach(i=>{ if(i.tech) t[i.tech]=(t[i.tech]||0)+1; });
+  x.techId=Object.keys(t).sort((a,b)=>t[b]-t[a])[0]||"";
+  return x;
+}
 function listKeys(){
   const L=COUNT&&COUNT.list; if(!L) return null;
   const m=new Map();
+  if(L.kind==="xplore"){ L.x.serials.forEach(r=>{ if(r.key && !m.has(r.key)) m.set(r.key, r.serial); }); return m; }
   L.rows.forEach(r=>{ const v=String(r[L.col]==null?"":r[L.col]).trim(); const k=keyOf(v); if(k && !m.has(k)) m.set(k,v); });
   return m;
 }
+function listRow(key){ const L=COUNT&&COUNT.list; return L&&L.kind==="xplore" ? L.x.serials.find(r=>r.key===key)||null : null; }
 function guessColumn(headers, rows){
   const byName=headers.findIndex(h=>/serial|s\/n|\bsn\b|esn|imei/i.test(String(h)));
   if(byName>=0) return byName;
@@ -1928,19 +1998,29 @@ function guessColumn(headers, rows){
 $("listIn").addEventListener("change",async()=>{
   const f=$("listIn").files&&$("listIn").files[0]; if(!f) return;
   if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!COUNT){ COUNT={startedAt:Date.now(), items:[], list:null}; }
   try{
-    const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});
-    const ws=wb.Sheets[wb.SheetNames[0]];
-    const grid=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:false}).filter(r=>r.some(c=>String(c).trim()));
-    if(!grid.length) throw 0;
-    let hi=grid.findIndex(r=>r.filter(c=>String(c).trim()).length>=2); if(hi<0||hi>10) hi=0;
-    const width=Math.max(...grid.map(r=>r.length));
-    const headers=Array.from({length:width},(_,c)=>String(grid[hi][c]||"").trim()||`Column ${c+1}`);
-    const rows=grid.slice(hi+1).map(r=>Array.from({length:width},(_,c)=>String(r[c]==null?"":r[c]).trim()));
-    COUNT.list={file:f.name, loadedAt:Date.now(), headers, rows, col:guessColumn(headers,rows)};
-    saveCount(); cmpMode="list"; renderCount();
-    toast(`Loaded ${rows.length} rows from ${f.name}`);
-  }catch(e){ toast("Couldn't read that file. Use the Excel or CSV list from the inventory team."); }
+    const buf=await f.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const sheet=wb.SheetNames[0], ws=wb.Sheets[sheet];
+    const x=parseXploreList(ws);
+    if(x){
+      COUNT.list={kind:"xplore", file:f.name, loadedAt:Date.now(), sheet, x, b64: buf.byteLength<1500000 ? b64FromBuf(buf) : ""};
+      COUNT.qc={}; COUNT.cm={}; COUNT.finalAt=0;
+      saveCount(); cmpMode="list"; renderCount();
+      toast(`Loaded ${x.serials.length} serialized and ${x.qty.length} non-serialized items`);
+    } else {
+      const grid=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true}).map(r=>r.map(cellText)).filter(r=>r.some(c=>c));
+      if(!grid.length) throw 0;
+      let hi=grid.findIndex(r=>r.filter(c=>c).length>=2); if(hi<0||hi>10) hi=0;
+      const width=Math.max(...grid.map(r=>r.length));
+      const headers=Array.from({length:width},(_,c)=>String(grid[hi][c]||"").trim()||`Column ${c+1}`);
+      const rows=grid.slice(hi+1).map(r=>Array.from({length:width},(_,c)=>r[c]==null?"":r[c]));
+      COUNT.list={file:f.name, loadedAt:Date.now(), headers, rows, col:guessColumn(headers,rows)};
+      saveCount(); cmpMode="list"; renderCount();
+      toast(`Loaded ${rows.length} rows from ${f.name}`);
+    }
+  }catch(e){ toast("Couldn't read that file. Use the Excel count list from the inventory team."); }
   finally{ $("listIn").value=""; }
 });
 $("cmpSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-cmp]"); if(!b) return; cmpMode=b.dataset.cmp; renderCount(); });
@@ -1952,25 +2032,87 @@ function countRows(){
   const list=listKeys();
   const keys=new Set([...scanned.keys(), ...inStock.keys(), ...(list?list.keys():[])]);
   return [...keys].map(k=>{
-    const sc=scanned.get(k), st=inStock.get(k), note=recordNote(k);
-    return {key:k, serial:(sc&&sc.code)||(st&&st.serial)||(list&&list.get(k))||k,
-      item:(st&&SKU[st.sku]&&SKU[st.sku].name)||note.item||"",
+    const sc=scanned.get(k), st=inStock.get(k), note=recordNote(k), lr=listRow(k);
+    return {key:k, serial:(lr&&lr.serial)||(sc&&sc.code)||(st&&st.serial)||(list&&list.get(k))||k,
+      item:(lr&&lr.desc)||(st&&SKU[st.sku]&&SKU[st.sku].name)||note.item||"",
       scanned:!!sc, scannedAt:sc?sc.ts:null, inStock:!!st, onList:list?list.has(k):null, note:note.text};
   });
+}
+/* where the tech's own records say a missing unit went */
+function autoComment(key){
+  const e=Store.events.find(ev=>!ev.voided && ev.serialKey===key);
+  if(!e || !["deploy","transfer","rma","recycle","return"].includes(e.type)) return "";
+  return recordNote(key).text;
+}
+function commentFor(key){ return COUNT.cm && Object.prototype.hasOwnProperty.call(COUNT.cm,key) ? COUNT.cm[key] : autoComment(key); }
+function qtyYN(q){ const n=COUNT.qc&&COUNT.qc[q.k]; return n==null ? "" : n===q.expected ? "Y" : `N (${n})`; }
+function recordQty(q){ const sku=SKU[q.part]; return sku && !sku.serial ? Math.max(0,STOCK.qty[sku.id]||0) : null; }
+/* best part number and description for a unit that isn't on the list */
+function extraInfo(r){
+  const L=COUNT.list, g=guessSku(r.serial);
+  if(g && g.sku){
+    const same=L.x.serials.find(s=>keyOf(s.part)===keyOf(g.sku));
+    return {part:same?same.part:g.sku, desc:same?same.desc:SKU[g.sku].name};
+  }
+  return {part:"", desc:g?guessLabel(g):(r.item||"")};
 }
 function groupHTML(cls, title, sub, rows, line, removable){
   const empty = !rows.length;
   return `<details class="grp ${empty?"zero":cls}"${!empty&&cls==="bad"?" open":""}><summary><span class="lbl2">${esc(title)}<small>${esc(sub)}</small></span><span class="gcount">${rows.length}</span></summary>
     <div class="grp-body">${empty?`<div class="crow muted">None</div>`:rows.map(r=>`<div class="crow"><div class="crow-main"><span class="mono">${esc(r.serial)}</span>${r.item?`<small>${esc(r.item)}</small>`:""}<small>${esc(line(r))}</small></div>${removable?`<button class="x" type="button" data-unc="${esc(r.key)}" aria-label="Remove ${esc(r.serial)} from count">✕</button>`:""}</div>`).join("")}</div></details>`;
 }
+function renderXCount(rows, L){
+  const x=L.x;
+  const ok=rows.filter(r=>r.scanned&&r.onList), miss=rows.filter(r=>!r.scanned&&r.onList), extra=rows.filter(r=>r.scanned&&!r.onList);
+  $("cs-ok").textContent=`${ok.length}/${x.serials.length}`; $("cs-ok-l").textContent="Found";
+  $("cs-miss").textContent=miss.length; $("cs-miss-l").textContent="Not found yet";
+  const techWarn = x.techId && ME.sap && x.techId!==ME.sap ? `<div class="note warn">This list is for Tech ID ${esc(x.techId)}, but your SAP account # is ${esc(ME.sap)}. Check you have the right list.</div>` : "";
+  $("listBox").innerHTML=`<div class="card"><div class="cmp-head"><h3>${esc(L.file)}</h3><button class="btn sm" type="button" data-pick-list>Replace</button></div>
+    <div class="list-meta">${x.techId?`<span>Tech ID <b class="mono">${esc(x.techId)}</b></span>`:""}<span>${x.serials.length} serialized</span><span>${x.qty.length} non-serialized</span></div>${techWarn}</div>`;
+  const cmRow=(r, ph)=>`<div class="crow-act"><input type="text" class="cm-in" data-cm="${esc(r.key)}" value="${esc(commentFor(r.key))}" placeholder="${esc(ph)}" aria-label="Comment for ${esc(r.serial)}" autocomplete="off"></div>`;
+  const missH = miss.map(r=>`<div class="crow"><div class="crow-main"><span class="mono">${esc(r.serial)}</span>${r.item?`<small>${esc(r.item)}</small>`:""}<small>Your records: ${esc(r.note)}</small>${cmRow(r,"Comment: where is it?")}</div><button class="btn sm" type="button" data-have="${esc(r.serial)}">Have It</button></div>`).join("");
+  const extraH = extra.map(r=>{ const i=extraInfo(r); return `<div class="crow"><div class="crow-main"><span class="mono">${esc(r.serial)}</span>${i.desc?`<small>${esc(i.desc)}</small>`:""}<small>Your records: ${esc(r.note)}</small>${cmRow(r,"Comment (optional)")}</div><button class="x" type="button" data-unc="${esc(r.key)}" aria-label="Remove ${esc(r.serial)} from count">✕</button></div>`; }).join("");
+  const okH = ok.map(r=>`<div class="crow"><div class="crow-main"><span class="mono">${esc(r.serial)}</span>${r.item?`<small>${esc(r.item)}</small>`:""}<small>Scanned ${esc(fmtTime(r.scannedAt))}</small></div><button class="x" type="button" data-unc="${esc(r.key)}" aria-label="Remove ${esc(r.serial)} from count">✕</button></div>`).join("");
+  const grp=(cls,title,sub,n,body,open)=>`<details class="grp ${n?cls:"zero"}"${open&&n?" open":""}><summary><span class="lbl2">${esc(title)}<small>${esc(sub)}</small></span><span class="gcount">${n}</span></summary><div class="grp-body">${n?body:`<div class="crow muted">None</div>`}</div></details>`;
+  let html = !COUNT.items.length ? `<div class="note info">Tap Scan Items and scan every serialized unit in your truck and storage. Scanning the MAC barcode works too for units on this list.</div>` : "";
+  html += `<span class="eyebrow">Serialized Units</span>`
+    + grp("bad","On the list, not found yet","Scan it, tap Have It, or add a comment saying where it went",miss.length,missH,true)
+    + grp("bad","Found, not on the list","These go in the Additional Units section",extra.length,extraH,true)
+    + grp("ok","Found","Scanned and on the list",ok.length,okH,false);
+  $("cmpList").innerHTML=html;
+  // non-serialized quantities
+  if(x.qty.length){
+    const done=x.qty.filter(q=>COUNT.qc&&COUNT.qc[q.k]!=null).length;
+    $("qtyBox").innerHTML=`<div class="card"><div class="cmp-head"><h3>Non-Serialized Items</h3><span class="pill t-count" id="qtyDone">${done}/${x.qty.length} counted</span></div>
+      <p class="help">Count each item and type how many you have. Type 0 if you have none.</p>
+      ${x.qty.map(q=>{ const n=COUNT.qc&&COUNT.qc[q.k], yn=qtyYN(q), rq=recordQty(q), cm=COUNT.cm&&COUNT.cm[q.k]||"";
+        return `<div class="qrow" data-qrow="${q.k}"><div class="qtop"><div class="crow-main"><b>${esc(q.desc||q.part)}</b><small class="mono">${esc(q.part)}</small><small>List says <b>${q.expected}</b>${rq!=null?` · Your records: ${rq}`:""}</small></div>
+          <span class="yn ${yn?(yn==="Y"?"y":"n"):""}" data-yn>${yn?esc(yn.split(" ")[0]):"–"}</span>
+          <input type="number" inputmode="numeric" min="0" step="1" data-qc="${q.k}" value="${n==null?"":n}" placeholder="0" aria-label="How many ${esc(q.desc||q.part)} you counted"></div>
+          <input type="text" class="cm-in" data-cm="${q.k}" value="${esc(cm)}" placeholder="Comment: why it's different" aria-label="Comment for ${esc(q.desc||q.part)}" ${yn&&yn!=="Y"||cm?"":"hidden"} autocomplete="off"></div>`; }).join("")}</div>`;
+  }
+  // finish
+  $("finalBox").innerHTML=`<div class="card"><h3>Finish Your Count</h3>
+    <p class="help">Saves the inventory team's list as an Excel file with Y/N, counts and your comments filled in, plus any extra units under Additional Units.</p>
+    ${COUNT.finalAt?`<div class="note info">Final count exported ${esc(fmtFull(COUNT.finalAt))}. Export again if you change anything.</div>`:""}
+    <div id="finalErr"></div>
+    <button class="btn brand block" type="button" id="countFinal">Export Final Count to Excel</button></div>`;
+}
+let countRenderLater=false;
+function typingInCount(){ const a=document.activeElement; return !!(a && a.matches && a.matches("#p-count [data-qc], #p-count [data-cm]")); }
+document.addEventListener("focusout",()=>{ setTimeout(()=>{ if(countRenderLater && !typingInCount()){ countRenderLater=false; renderCount(); } },0); });
 function renderCount(){
+  if(typingInCount()){ countRenderLater=true; return; }
   const active=!!COUNT;
   $("countEmpty").hidden=active; $("countActive").hidden=!active;
   if(!active) return;
-  $("countIntro").textContent=`Started ${fmtFull(COUNT.startedAt)}. Scan every serialized unit in your truck and storage.`;
+  $("countIntro").textContent=`Started ${fmtFull(COUNT.startedAt)}. Scan every serialized unit in your truck and storage${COUNT.list&&COUNT.list.kind==="xplore"?", count the non-serialized items, then export your final count.":"."}`;
   document.querySelectorAll("#cmpSeg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.cmp===cmpMode?"true":"false"));
   const rows=countRows(), L=COUNT.list;
   $("cs-scanned").textContent=COUNT.items.length;
+  const xmode = cmpMode==="list" && L && L.kind==="xplore";
+  $("countExport").hidden=xmode; $("qtyBox").innerHTML=""; $("finalBox").innerHTML="";
+  if(xmode){ renderXCount(rows, L); return; }
   // inventory list panel
   if(cmpMode==="list"){
     $("listBox").innerHTML = L
@@ -1999,14 +2141,99 @@ function renderCount(){
   if(!COUNT.items.length && cmpMode==="records") html=`<div class="note info">Tap Scan Items and work through your truck and storage, accepting each serial.</div>`+html;
   $("cmpList").innerHTML=html;
 }
+document.addEventListener("input",e=>{
+  const q=e.target.closest("#p-count [data-qc]"), c=e.target.closest("#p-count [data-cm]");
+  if(!COUNT) return;
+  if(q){
+    COUNT.qc=COUNT.qc||{}; const v=q.value.trim();
+    if(v==="") delete COUNT.qc[q.dataset.qc]; else COUNT.qc[q.dataset.qc]=Math.max(0,Math.floor(Number(v)||0));
+    saveCount();
+    const it=COUNT.list.x.qty.find(z=>z.k===q.dataset.qc), row=q.closest("[data-qrow]"), yn=qtyYN(it), chip=row.querySelector("[data-yn]");
+    chip.textContent=yn?yn.split(" ")[0]:"–"; chip.className="yn "+(yn?(yn==="Y"?"y":"n"):"");
+    const cmi=row.querySelector("[data-cm]"); if(yn && yn!=="Y") cmi.hidden=false; else if(!cmi.value) cmi.hidden=true;
+    const d=$("qtyDone"); if(d) d.textContent=`${COUNT.list.x.qty.filter(z=>COUNT.qc[z.k]!=null).length}/${COUNT.list.x.qty.length} counted`;
+    if($("finalErr")) $("finalErr").innerHTML="";
+  }
+  if(c){ COUNT.cm=COUNT.cm||{}; COUNT.cm[c.dataset.cm]=c.value; saveCount(); if($("finalErr")) $("finalErr").innerHTML=""; }
+});
 document.addEventListener("click",e=>{
-  if(e.target.closest("[data-pick-list]")){ $("listIn").click(); return; }
+  const h=e.target.closest("[data-have]"); if(h){ countAdd(h.dataset.have); toast("Marked as found"); return; }
+  if(e.target.closest("#countFinal")){ finalCheck(false); return; }
+  if(e.target.closest("#finalAnyway")){ finalCheck(true); return; }
   const u=e.target.closest("[data-unc]"); if(u){ countRemove(u.dataset.unc); toast("Removed from count"); }
 });
 
+/* final count list: the inventory team's own file with Y/N, counts and comments filled in */
+function finalCheck(force){
+  const L=COUNT.list, x=L.x, err=$("finalErr");
+  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  const blank=x.qty.filter(q=>!COUNT.qc||COUNT.qc[q.k]==null);
+  if(blank.length){
+    err.innerHTML=`<div class="note warn">Enter a count for ${blank.length===1?"1 non-serialized item":blank.length+" non-serialized items"} first. Type 0 if you have none.</div>`;
+    const f=document.querySelector(`[data-qc="${blank[0].k}"]`); if(f){ f.scrollIntoView({block:"center"}); f.focus(); }
+    return;
+  }
+  const scanned=new Set(COUNT.items.map(i=>i.key));
+  const noCm=x.serials.filter(r=>!scanned.has(r.key) && !String(commentFor(r.key)).trim()).length
+           + x.qty.filter(q=>qtyYN(q)!=="Y" && !String(COUNT.cm&&COUNT.cm[q.k]||"").trim()).length;
+  if(noCm && !force){
+    err.innerHTML=`<div class="note warn"><b>${noCm} ${noCm===1?"line is":"lines are"} marked N with no comment.</b> Inventory will ask what happened. Add a comment, or export anyway.</div>
+      <button class="btn block" type="button" id="finalAnyway" style="margin-top:8px">Export Anyway</button>`;
+    return;
+  }
+  err.innerHTML="";
+  buildFinal();
+}
+function finalSummary(){
+  const x=COUNT.list.x, scanned=new Set(COUNT.items.map(i=>i.key)), list=listKeys();
+  const miss=x.serials.filter(r=>!scanned.has(r.key));
+  const diff=x.qty.filter(q=>qtyYN(q)!=="Y");
+  const extra=COUNT.items.filter(i=>!list.has(i.key));
+  return {x, scanned, miss, diff, extra, found:x.serials.length-miss.length};
+}
+async function buildFinal(){
+  const L=COUNT.list, S=finalSummary(), x=S.x;
+  let wb, ws;
+  try{ wb=XLSX.read(bufFromB64(L.b64),{type:"array",cellStyles:true}); ws=wb.Sheets[L.sheet]||wb.Sheets[wb.SheetNames[0]]; }
+  catch(e){ wb=null; }
+  if(!wb || !L.b64){ toast("The original list isn't saved on this phone. Tap Replace and upload it again."); return; }
+  const R=XLSX.utils.decode_range(ws["!ref"]); let maxR=R.e.r, maxC=Math.max(R.e.c,6);
+  const set=(r,c,v)=>{ if(v===""||v==null){ delete ws[XLSX.utils.encode_cell({r,c})]; return; } ws[XLSX.utils.encode_cell({r,c})]= typeof v==="number" ? {t:"n",v} : {t:"s",v:String(v)}; maxR=Math.max(maxR,r); maxC=Math.max(maxC,c); };
+  const sc=x.serCols;
+  x.serials.forEach(r=>{ const f=S.scanned.has(r.key); set(r.r,sc.yn,f?"Y":"N"); set(r.r,sc.cm,String(commentFor(r.key)||"").trim()); });
+  if(x.qtyCols) x.qty.forEach(q=>{ set(q.r,x.qtyCols.yn,qtyYN(q)); set(q.r,x.qtyCols.cm,String(COUNT.cm&&COUNT.cm[q.k]||"").trim()); });
+  // additional units
+  let ac=x.addCols, start;
+  if(x.addHdr!=null) start=(x.addLast!=null?x.addLast:x.addHdr)+1;
+  else {
+    const t=x.lastRow+2; set(t,0,"Additional Units"); ac=sc;
+    ["Serial number","MAC address","Part Number","Description","Tech ID","Y/N","Comment"].forEach((h,i)=>{ const cols=[sc.serial,sc.mac,sc.part,sc.desc,sc.tech,sc.yn,sc.cm]; if(cols[i]!=null) set(t+1,cols[i],h); });
+    start=t+2;
+  }
+  S.extra.forEach((it,i)=>{
+    const r=start+i, info=extraInfo({serial:it.code, item:""}), cm=String(commentFor(it.key)||"").trim();
+    if(ac.serial!=null) set(r,ac.serial,it.code);
+    if(ac.part!=null) set(r,ac.part,info.part);
+    if(ac.desc!=null) set(r,ac.desc,info.desc);
+    if(ac.tech!=null){ const t=x.techId||ME.sap; set(r,ac.tech,/^\d{1,15}$/.test(t)?Number(t):t); }
+    set(r,ac.yn,"Y"); set(r,ac.cm,cm?`Not on count list. ${cm}`:"Not on count list");
+  });
+  ws["!ref"]=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:maxR,c:maxC}});
+  if(!ws["!cols"]) ws["!cols"]=[];
+  [[sc.serial,20],[sc.mac,16],[sc.part,18],[sc.desc,40],[sc.yn,8],[sc.cm,44]].forEach(([c,w])=>{ if(c!=null && !(ws["!cols"][c]&&ws["!cols"][c].wch>w)) ws["!cols"][c]={wch:w}; });
+  const d=new Date(), stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const dealer=(ME.dealer||ME.name||"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  const name=["Count",dealer,ME.sap||x.techId,stamp].filter(Boolean).join("_")+".xlsx";
+  const file=new File([XLSX.write(wb,{bookType:"xlsx",type:"array"})], name, {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  try{
+    const how=await saveFile(file);
+    COUNT.finalAt=Date.now(); saveCount(); renderCount();
+    toast(how==="downloaded" ? `Saved ${name} to Downloads` : "Final count saved");
+  }catch(e){ if(!(e&&e.name==="AbortError")) toast("Couldn't create the count file. Try again."); }
+}
 /* end / export */
 $("countEnd").addEventListener("click",()=>{
-  $("countEndConfirm").innerHTML=`<div class="card"><b>End this count?</b><p class="help">The ${COUNT.items.length} scanned serials are cleared from this phone. Save the count to Excel first if you need it. Your stock and history aren't affected.</p>
+  $("countEndConfirm").innerHTML=`<div class="card"><b>End this count?</b><p class="help">The ${COUNT.items.length} scanned serials${COUNT.list&&COUNT.list.kind==="xplore"?", your counts and comments":""} are cleared from this phone. ${COUNT.list&&COUNT.list.kind==="xplore"?"Export your final count first.":"Save the count to Excel first if you need it."} Your stock and history aren't affected.</p>
     <div class="row"><button class="btn block" type="button" id="endKeep">Keep Counting</button><button class="btn danger block" type="button" id="endGo">End Count</button></div></div>`;
   $("endKeep").onclick=()=>$("countEndConfirm").innerHTML="";
   $("endGo").onclick=()=>{ COUNT=null; try{localStorage.removeItem(CK)}catch(e){} $("countEndConfirm").innerHTML=""; cmpMode="records"; renderCount(); toast("Count ended"); };
@@ -2187,9 +2414,15 @@ $("liveShoot").addEventListener("click",async()=>{
       warn = F.type==="receive" && rec && rec.inStock ? "Already in your stock" : F.type!=="receive" && !(rec && rec.inStock) ? "Not in your stock records" : "";
     }
   } else {
-    if(isMac(text)){ warn=MAC_MSG; blocked=true; }
-    else if(COUNT && COUNT.items.some(i=>i.key===key)){ warn="Already counted"; blocked=true; }
-    else{ const note=recordNote(key); item=note.item||""; warn=note.text==="No record on this phone"?"No record on this phone":""; }
+    const res=resolveCode(text), k2=keyOf(res.code), lk=listKeys(), lr=listRow(k2);
+    if(!res.viaMac && isMac(text)){ warn=MAC_MSG; blocked=true; }
+    else if(COUNT && COUNT.items.some(i=>i.key===k2)){ warn="Already counted"; blocked=true; }
+    else{
+      const note=recordNote(k2); item=(lr&&lr.desc)||note.item||"";
+      if(res.viaMac) item=`MAC for serial ${res.code}${item?" · "+item:""}`;
+      warn = lk ? (lk.has(k2)?"":"Not on your count list") : note.text==="No record on this phone"?"No record on this phone":"";
+      if(lk && lk.has(k2)) item=(item?item+" · ":"")+"On your count list";
+    }
   }
   $("liveLast").classList.add("pending");
   $("liveLast").innerHTML=`<span class="mono">${esc(text)}</span>${item?`<small>${esc(item)}</small>`:""}${warn?`<small class="warn">${esc(warn)}</small>`:""}`;
@@ -2213,8 +2446,8 @@ $("liveAccept").addEventListener("click",()=>{
       showScanRow(`<small>Added</small><span class="mono">${esc(text)}</span>${s?`<small>${esc(s.name)}</small>`:""}`);
     }
   } else {
-    countAdd(text); beep(true);
-    showScanRow(`<small>Counted</small><span class="mono">${esc(text)}</span>`);
+    const shown=resolveCode(text).code; countAdd(text); beep(true);
+    showScanRow(`<small>Counted</small><span class="mono">${esc(shown)}</span>`);
   }
 });
 function stopLiveScan(){
