@@ -95,7 +95,7 @@ h3{margin:0;font:600 1rem/1.2 var(--f-display);letter-spacing:.01em}
 .search input,.search input[type=search]{padding-left:40px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field>label,.lbl{font-size:.82rem;font-weight:600;color:var(--muted)}
-input[type=text],input[type=search],input[type=number],select,textarea{width:100%;border:0;background:var(--surface);border-radius:var(--r-sm);padding:12px;box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+input[type=text],input[type=search],input[type=number],input[type=email],select,textarea{width:100%;border:0;background:var(--surface);border-radius:var(--r-sm);padding:12px;box-shadow:inset 0 0 0 1px var(--line);min-width:0}
 textarea{resize:vertical;min-height:64px}
 input:focus,select:focus,textarea:focus{outline:none;box-shadow:inset 0 0 0 2px var(--accent)}
 .row{display:flex;gap:8px;align-items:stretch}
@@ -226,7 +226,7 @@ dl.kv a{color:var(--brand-2);font-weight:600}
 .spinner{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--brand-2);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.toast{z-index:95!important;border-radius:14px!important;text-align:center;position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+.toast{pointer-events:none;z-index:95!important;border-radius:14px!important;text-align:center;position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 @media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}}
 @media (max-width:380px){.qa{font-size:.75rem}.seg button{font-size:.75rem}}
 .backup{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow)}
@@ -251,6 +251,29 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .file-pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .kv-plain{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.9rem}
 .kv-plain dt{color:var(--muted)}
+.pf{display:flex;flex-direction:column;gap:14px}
+.hint{font-size:.82rem;color:var(--muted);line-height:1.35}
+.ferr{font-size:.82rem;color:var(--warn);font-weight:600;line-height:1.35}
+.field input.bad,.field select.bad{box-shadow:inset 0 0 0 2px var(--warn)}
+.addr{display:grid;grid-template-columns:1fr 6.5rem;gap:8px}
+.addr input,.addr select{min-width:0}
+.links{display:flex;flex-direction:column;gap:8px}
+.link-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);text-decoration:none!important;color:var(--ink)!important;font-weight:400!important}
+.link-row svg{width:18px;height:18px;color:var(--brand-2);flex:none}
+.link-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.link-txt b{font-weight:600}
+.link-txt small{font-size:.82rem;color:var(--muted)}
+button.link-row{font:inherit;text-align:left;width:100%;cursor:pointer}
+.ord-group{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 2px}
+.ord-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ord-row:last-child{border-bottom:0}
+.ord-row .ord-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ord-row .ord-txt b{font-weight:600;line-height:1.25}
+.ord-row .ord-txt small{font-size:.75rem;color:var(--muted);letter-spacing:.02em}
+.ord-row.on .ord-txt b{color:var(--brand-2)}
+.qty.sm span.zero{color:var(--void)}
+.back{align-self:flex-start;padding-left:0}
+a.link-row:active{background:var(--surface-2)}
 .help{margin:0;font-size:.9rem;line-height:1.45;color:var(--muted)}
 .intro{margin-top:6px}
 .mono:is(input,textarea,select){font-size:1rem}
@@ -287,6 +310,14 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 .gcount{font:700 1.4rem/1 var(--f-display);font-variant-numeric:tabular-nums;min-width:2ch;text-align:right}
 .grp.ok .gcount{color:var(--in)} .grp.bad .gcount{color:var(--warn)} .grp.zero .gcount{color:var(--void)}
 .grp-body{border-top:1px solid var(--line);padding:4px 14px 10px}
+.why{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.why li{display:flex;gap:10px;font-size:.95rem;line-height:1.45}
+.why li b{display:block}
+.why .dot{flex:none;width:26px;height:26px;border-radius:50%;background:var(--surface-2);color:var(--brand-2);display:grid;place-items:center}
+.why .dot svg{width:15px;height:15px}
+.gsteps{margin:6px 0 4px;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:.95rem;line-height:1.45}
+.gsteps li::marker{font-weight:700;color:var(--brand-2)}
+.guide .grp-body{display:flex;flex-direction:column;gap:10px;padding-top:12px;padding-bottom:14px}
 .crow{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
 .crow:last-child{border-bottom:0}
 .crow-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -369,11 +400,11 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
     </div>
     <form class="card" id="logForm" novalidate>
       <div class="field" id="accountBlock" hidden>
-        <label for="accountIn">Customer account number</label>
+        <label for="accountIn">Customer Account Number</label>
         <input type="text" id="accountIn" inputmode="numeric" autocomplete="off" placeholder="Account deployed at" class="mono">
       </div>
       <div class="field" id="fromBlock" hidden>
-        <label for="fromSel">Received from</label>
+        <label for="fromSel">Received From</label>
         <select id="fromSel">
           <option value="">Choose where it came from…</option>
           <option>Warehouse</option><option>Recovery</option><option>Transfer</option><option>Other</option>
@@ -383,7 +414,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <input type="text" id="fromIn" autocomplete="off" placeholder="Where did it come from?" hidden>
       </div>
       <div class="field" id="toBlock" hidden>
-        <label for="toIn">Transferred to dealer</label>
+        <label for="toIn">Transferred To Dealer</label>
         <input type="text" id="toIn" autocomplete="off" placeholder="Dealer name">
         <div class="seg two-col" id="howSeg" role="group" aria-label="How it's going">
           <button class="t-count" type="button" data-how="person" aria-pressed="true">In person</button>
@@ -393,8 +424,9 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <div class="note warn">You're sending these items, so you're responsible for emailing the transfer to the inventory team. Stock Tracker drafts the email after you log it.</div>
       </div>
       <div class="field" id="rmaBlock" hidden>
-        <label for="rmaIn">RMA number <span class="muted">(optional)</span></label>
+        <label for="rmaIn">RMA Number <span class="muted">(Optional)</span></label>
         <input type="text" id="rmaIn" autocomplete="off" autocapitalize="characters" placeholder="From the RMA label or email" class="mono">
+        <a class="help" href="https://form.jotform.com/72404477841257" target="_blank" rel="noopener">Need an RMA number? Open the RMA Request Form</a>
       </div>
       <div class="field" id="recycleBlock" hidden>
         <div class="note warn"><b>Before you recycle anything</b><br>Check the inventory system first. Don't recycle equipment that is still assigned to you or has an open RMA. It will show up as missing at your next count.</div>
@@ -419,7 +451,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <div id="skuPick" class="field" hidden></div>
       </div>
       <div class="field" id="serialBlock" hidden>
-        <span class="lbl" id="serialLbl">Serial numbers</span>
+        <span class="lbl" id="serialLbl">Serial Numbers</span>
         <span class="muted" id="serialHint" style="font-size:.82rem" hidden>Scan first if you like. The item fills in when Stock Tracker recognizes the serial.</span>
         <div class="row">
           <input type="text" id="serialIn" placeholder="Type a serial" autocomplete="off" autocapitalize="characters" spellcheck="false" class="mono">
@@ -442,7 +474,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <div id="qtyWarn"></div>
       </div>
       <div class="field">
-        <label for="noteIn">Note <span class="muted">(optional)</span></label>
+        <label for="noteIn">Note <span class="muted">(Optional)</span></label>
         <textarea id="noteIn" placeholder="Work order, fault, condition…"></textarea>
       </div>
       <div class="loc" id="locLine"><span class="dot" id="locDot"></span><span id="locTxt">Location not checked yet</span>
@@ -505,12 +537,20 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
   <section class="panel" id="p-backup" hidden>
     <h2>Admin</h2>
     <div class="card">
+      <h3>Ordering &amp; RMAs</h3>
+      <div class="links">
+        <a class="link-row" href="https://dealerportal.xplore.ca/" target="_blank" rel="noopener">
+          <span class="link-txt"><b>Order Inventory</b><small>Xplore Dealer Portal</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg></a>
+        <a class="link-row" href="https://form.jotform.com/72404477841257" target="_blank" rel="noopener">
+          <span class="link-txt"><b>RMA Request Form</b><small>Request an RMA number</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg></a>
+        <button class="link-row" type="button" data-goto="order">
+          <span class="link-txt"><b>Manual Order Request</b><small>When you can't order through Salesforce</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="card">
       <h3>Your details</h3>
-      <div class="field"><label for="nameIn">Your name</label>
-        <input type="text" id="nameIn" autocomplete="name" placeholder="First and last name"></div>
-      <div class="field"><label for="dealerIn">Dealership</label>
-        <input type="text" id="dealerIn" autocomplete="organization" placeholder="Dealership name"></div>
-      <p class="help">Your name and dealership go on your Google Sheet and Excel files.</p>
+      <div class="pf" id="adminFields"></div>
+      <p class="help">Type these yourself, matching Xplore's records. They go on your transfer emails and Excel files. Changes save as you go.</p>
     </div>
     <div class="card">
       <h3>Appearance</h3>
@@ -531,6 +571,32 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
       <button class="btn block" type="button" data-backup>Export to Excel</button>
     </div>
     <div class="note info" id="homeTip"></div>
+  </section>
+
+  <!-- MANUAL ORDER -->
+  <section class="panel" id="p-order" hidden>
+    <button class="btn ghost back" type="button" data-goto="backup">‹ Admin</button>
+    <div><h2>Manual Order Request</h2>
+      <p class="help intro">Only use this when you can't order through Salesforce. Your manager gets the order by email to approve.</p></div>
+    <div class="card">
+      <div class="cmp-head"><h3 id="ordCount">Items</h3><button class="btn ghost" type="button" id="ordClear" hidden>Clear</button></div>
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="search" id="ordQ" placeholder="Find an item" autocomplete="off"></div>
+      <div id="ordList"></div>
+    </div>
+    <div class="card">
+      <div class="field"><label for="ordReason">Reason for Manual Order</label>
+        <textarea id="ordReason" placeholder=""></textarea><small class="hint">e.g. Salesforce ordering is down</small></div>
+      <div class="field"><label for="ordNotes">Special Instructions <span class="muted">(Optional)</span></label>
+        <textarea id="ordNotes"></textarea><small class="hint">e.g. Leave at side door</small></div>
+      <div class="field"><label for="ordMgr">Manager's Email</label>
+        <input type="email" id="ordMgr" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false"><small class="hint">Saved for next time, e.g. first.last@xplore.ca</small>
+        <small class="ferr" id="ordMgr_err" hidden></small></div>
+      <div class="field"><span class="lbl">Ships To</span>
+        <div class="note info" id="ordShip"></div></div>
+    </div>
+    <div id="ordErr"></div>
+    <button class="btn primary block" type="button" id="ordSend">Email Order to Manager</button>
   </section>
 </main>
 
@@ -586,22 +652,22 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
   </div></div>
   <form class="setup-body" id="setupForm" novalidate>
     <span class="eyebrow" id="setupStep1" hidden>Step 1 of 2</span>
-    <div class="field"><label for="setupName">Your name</label>
-      <input type="text" id="setupName" autocomplete="name" placeholder="First and last name"></div>
-    <div class="field"><label for="setupDealer">Dealership</label>
-      <input type="text" id="setupDealer" autocomplete="organization" placeholder="Dealership name"></div>
+    <div class="pf" id="setupFields"></div>
     <div id="setupErr"></div>
     <button class="btn primary block" type="submit">Continue</button>
   </form>
   <div class="setup-body" id="setupGoogle" hidden>
     <span class="eyebrow">Step 2 of 2</span>
-    <h2>Connect Google Sheets</h2>
-    <p class="help" style="color:var(--ink);font-size:1rem">Stock Tracker backs up every entry to a Google Sheet in your own Google Drive, so nothing is lost if your phone is. It can only open the sheet it creates, nothing else in your Drive.</p>
-    <p class="help">Setting up a new phone? Connect the same Google account and your entries come back.</p>
+    <div id="setupGMain">
+      <h2>Back Up With Your @xplore.ca Google Account</h2>
+      <div id="setupGuide" style="margin-top:12px"></div>
+    </div>
+    <div id="setupWrong" hidden></div>
     <div id="setupGErr"></div>
-    <button class="btn primary block" type="button" id="gsConnectSetup">Connect Google Sheets</button>
+    <div id="setupGBtns"><button class="btn primary block" type="button" id="gsConnectSetup">Connect Google Sheets</button></div>
     <a class="help" href="privacy.html" target="_blank" rel="noopener" style="align-self:center">Privacy policy</a>
   </div>
+</div>
 </div>
 
 <div class="toast" id="toast" hidden></div>
@@ -779,7 +845,7 @@ Store.events.forEach(e=>{ if(LEGACY_SKU[e.sku]){ e.sku=LEGACY_SKU[e.sku]; e.skuN
 // Ask the browser to keep this site's data (iPhone honours this best from the Home Screen)
 try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 
-const ME = Object.assign({name:"", dealer:""}, lsGet(K.me, {}));
+const ME = Object.assign({name:"", dealer:"", sap:"", sf:"", street:"", city:"", prov:"", postal:""}, lsGet(K.me, {}));
 
 /* ---------- derived stock ---------- */
 function computeStock(){
@@ -838,7 +904,8 @@ let tab="stock";
 function setTab(t){
   tab=t;
   document.querySelectorAll(".tabs [role=tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t?"true":"false"));
-  ["stock","log","history","count","backup"].forEach(p=>$("p-"+p).hidden = p!==t);
+  ["stock","log","history","count","backup","order"].forEach(p=>$("p-"+p).hidden = p!==t);
+  if(t==="order") renderOrder();
   try{ sessionStorage.setItem("techstock.tab",t); }catch(e){}
   if(t==="log") refreshLocation(false);
   stopLiveScan();
@@ -924,7 +991,7 @@ function deployAddSerial(v, quiet){
 function renderLines(){
   const list=$("lineList");
   $("dScanLbl").textContent = multi() ? "Scan Items" : F.lines.length ? "Scan a Different Item" : "Scan Item";
-  const LBL={receive:"Items received", transfer:"Items to transfer", rma:"Items going back on RMA", recycle:"Items to recycle"}[F.type];
+  const LBL={receive:"Items Received", transfer:"Items to Transfer", rma:"Items Going Back on RMA", recycle:"Items to Recycle"}[F.type];
   $("dLbl").textContent = multi() ? (F.lines.length ? `${LBL} (${F.lines.length})` : LBL) : "Item";
   renderJob();
   if(!F.lines.length){
@@ -1021,7 +1088,7 @@ function syncForm(){
   $("serialHint").hidden = !!s;
   $("qtyBlock").hidden = !(s && !s.serial);
   if(!s || s.serial){
-    $("serialLbl").textContent = F.type==="receive" ? "Serial numbers (scan each unit)" : "Serial numbers";
+    $("serialLbl").textContent = F.type==="receive" ? "Serial Numbers (Scan Each Unit)" : "Serial Numbers";
     const warns=[];
     $("serialList").innerHTML = F.serials.map((v,i)=>{
       const rec=STOCK.serials.get(keyOf(v)); let bad=false;
@@ -1220,6 +1287,8 @@ function transferMail(jobId){
 Please move the following equipment from ${fromDealer} to ${to}.
 
 From dealer: ${fromDealer}
+SAP account #: ${ME.sap}
+Salesforce account #: ${ME.sf}
 To dealer: ${to}
 Date: ${when}
 ${!evs[0].tracking ? "Method: In person" : evs[0].tracking==="Shipped" ? "Method: Shipped" : `Method: Shipped, tracking ${evs[0].tracking}`}
@@ -1229,25 +1298,100 @@ ${lines.join("\n")}
 Thank you,`;
   return {subject, body};
 }
-function openTransferMail(jobId){
-  const m=transferMail(jobId); if(!m) return;
-  const href=`mailto:${INV_EMAIL}?subject=${encodeURIComponent(m.subject)}&body=${encodeURIComponent(m.body)}`;
+function openMailSheet(o){   // {title, note, to, subject, body, extra}
+  const href=`mailto:${o.to}?subject=${encodeURIComponent(o.subject)}&body=${encodeURIComponent(o.body)}`;
   $("detailBody").innerHTML=`
-    <div class="sheet-head"><h2 id="detailH">Send the transfer email</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>
-    <div class="note warn">You sent these items, so emailing the inventory team is your job. The transfer isn't finished until they get this email.</div>
+    <div class="sheet-head"><h2 id="detailH">${esc(o.title)}</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>
+    ${o.note?`<div class="note warn">${esc(o.note)}</div>`:""}
     <div class="mail-box">
-      <dl class="kv-plain"><dt>To</dt><dd style="user-select:all">${INV_EMAIL}</dd><dt>Subject</dt><dd>${esc(m.subject)}</dd></dl>
-      <pre id="mailBody">${esc(m.body)}</pre>
+      <dl class="kv-plain"><dt>To</dt><dd style="user-select:all">${esc(o.to)}</dd><dt>Subject</dt><dd>${esc(o.subject)}</dd></dl>
+      <pre id="mailBody">${esc(o.body)}</pre>
     </div>
     <a class="btn primary block" href="${esc(href)}">Open in Email</a>
-    <button class="btn block" type="button" id="mailCopy">Copy Email Text</button>`;
+    <button class="btn block" type="button" id="mailCopy">Copy Email Text</button>
+    ${o.extra||""}`;
   $("detailSheet").hidden=false;
+  const m=o;
   $("mailCopy").addEventListener("click",async()=>{
-    const txt=`To: ${INV_EMAIL}\nSubject: ${m.subject}\n\n${m.body}`;
+    const txt=`To: ${m.to}\nSubject: ${m.subject}\n\n${m.body}`;
     try{ await navigator.clipboard.writeText(txt); toast("Email copied. Paste it into a new email."); }
     catch(e){ const r=document.createRange(); r.selectNodeContents($("mailBody")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Select and copy the text"); }
   });
 }
+function openTransferMail(jobId){
+  const m=transferMail(jobId); if(!m) return;
+  openMailSheet({title:"Send the transfer email", note:"You sent these items, so emailing the inventory team is your job. The transfer isn't finished until they get this email.", to:INV_EMAIL, subject:m.subject, body:m.body});
+}
+
+/* ---------- manual order request (replaces the Jotform) ---------- */
+const ORDER_ITEMS = [{"g": "Wi-Fi & Routers", "label": "FTX&XHP&XWR&HJ3 - ROUTER - Adtran Wi-Fi 6 Router", "max": 20}, {"g": "Wi-Fi & Routers", "label": "XWH - CUBE - Adtran Wi-Fi 6 Extender", "max": 20}, {"g": "Fixed Wireless & LTE", "label": "FW - J ARM - 2 PK J PIPE ANTENNA MOUNT 39\" OD 1.66\"", "max": 10}, {"g": "Fixed Wireless & LTE", "label": "FW - SURGE - FWA SURGE ARRESTOR", "max": 20}, {"g": "Fixed Wireless & LTE", "label": "LTE - CAT12 3.5GHZ - CAT12 LTE - B42/43/48", "max": 20}, {"g": "Fixed Wireless & LTE", "label": "LTE - CAT12 2.5GHZ - CAT 12 LTE - B38/41 2.5GHz", "max": 20}, {"g": "Fixed Wireless & LTE", "label": "FWN - 5G CPE", "max": 20}, {"g": "Fixed Wireless & LTE", "label": "FWN - HIGH-GAIN - 05 PRO MAX", "max": 10}, {"g": "Fixed Wireless & LTE", "label": "J ARM - 2 PK J PIPE ANTENNA MOUNT 39\" OD 1.66\"", "max": 10}, {"g": "Hughes Satellite", "label": "HTJ&HJ2 - 1 WATT RADIO - HTJ RADIO ASSY, LHCP", "max": 20}, {"g": "Hughes Satellite", "label": "HTJ&HJ2 - HT2000 - Hughes HT2000 Modem J2", "max": 20}, {"g": "Hughes Satellite", "label": "HTJ&HJ2&HJ3 - 2 WATT RADIO - RADIO ASSY, HC210-L, MULTI-J, LHCP", "max": 20}, {"g": "Hughes Satellite", "label": "HJ3 - HT3000 - HT3000 XCI Modem", "max": 20}, {"g": "Hughes Satellite", "label": "HJ2&HJ3 - ANTENNA - 90cm Antenna", "max": 20}, {"g": "Hughes Satellite", "label": "HJ2&HJ3 - AZEL - 90cm AzEl", "max": 20}, {"g": "Hughes Satellite", "label": "HTJ&HJ2&HJ3 - TRIMAST - Hughes TRI MAST MOUNT FOR J1 and J2", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HTV&KA2 - MODEM - ASSY, IDU MODEM, XPLORNET, SURFBEAM 2+", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HTV&KA2 - ETRIA - eTRIA - SurfBeam 2 (4 pack)", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HV2 - MODEM - V2 Satellite Modem", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HV2 - PTRIA - V2 Transceiver", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HTV&KA2&HV2 - ANTENNA - SurfBeam 2 Probrand v2 Antenna (4-pack)", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HTV&KA2&HV2 - AZEL - SurfBeam 2 Probrand v2 Az/El (4-pack)", "max": 20}, {"g": "SurfBeam & Viasat", "label": "HTV&KA2&HV2 - TRIMAST - SurfBeam 2 Probrand Mast Mount (4-pack)", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX - ONT - XGS PON Indoor ONT, US Power adaptor", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "ATX&MTX - ONT - Adtran ONT Total Access 411", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "MTV - ONT - Adtran 424 ONT", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "MTV - REMOTE - REMOTE CONTROL NOVA UNIVERSAL", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "MTV - STB - STB KAMAI 7XM W/NOVA REMOTE", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX&CTX&MTX - NID", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX - DROP CABLE - 100M Evolv Dielectric Drop PushLok Tech", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX - DROP CABLE - 200M Evolv Dielectric Drop PushLok Tech", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX - DROP CABLE - 300M Evolv Dielectric Drop PushLok Tech", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX - DROP CABLE - 500M Evolv Dielectric Drop PushLok Tech", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "FTX&ATX - DROP CABLE - 750M Evolv Dielectric Drop PushLok Tech", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "BBX - AERIAL - Pushlok Optitap Converter Kit (20)", "max": 20}, {"g": "Fiber, TV & Aerial", "label": "BBX - AERIAL - AFL FASTConnector SC/APC 900UM & 250UM (100)", "max": 20}];
+const OK_ORDER="techstock.order", OK_MGR="techstock.manager";
+const ORD=Object.assign({qty:{}, reason:"", notes:""}, lsGet(OK_ORDER,{}));
+const saveOrd=()=>lsSet(OK_ORDER, ORD);
+const ordTitle=l=>{ const p=l.split(" - "); return p.length>=3 ? p.slice(2).join(" - ") : p[p.length-1]; };
+const ordSub=l=>{ const p=l.split(" - "); return p.length>=3 ? p[0]+" · "+p[1] : p.length===2 ? p[0] : ""; };
+const validEmail=v=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+$("ordMgr").value=lsGet(OK_MGR,"")||"";
+$("ordReason").value=ORD.reason; $("ordNotes").value=ORD.notes;
+function renderOrder(){
+  const q=$("ordQ").value.trim().toLowerCase();
+  let html="", last="";
+  ORDER_ITEMS.forEach((it,i)=>{
+    if(q && !it.label.toLowerCase().includes(q)) return;
+    if(it.g!==last){ html+=`<div class="ord-group">${esc(it.g)}</div>`; last=it.g; }
+    const n=ORD.qty[i]||0;
+    html+=`<div class="ord-row${n?" on":""}"><div class="ord-txt"><b>${esc(ordTitle(it.label))}</b>${ordSub(it.label)?`<small>${esc(ordSub(it.label))}</small>`:""}</div>
+      <div class="qty sm"><button type="button" data-oq="${i}" data-d="-1" aria-label="Fewer"${n?"":" disabled"}>−</button><span class="${n?"":"zero"}">${n}</span><button type="button" data-oq="${i}" data-d="1" aria-label="More"${n>=it.max?" disabled":""}>+</button></div></div>`;
+  });
+  $("ordList").innerHTML = html || `<div class="help" style="padding:10px 0">No items match "${esc($("ordQ").value)}".</div>`;
+  const lines=Object.values(ORD.qty).filter(n=>n>0).length, units=Object.values(ORD.qty).reduce((a,b)=>a+(b||0),0);
+  $("ordCount").textContent = lines ? `Items (${units} selected)` : "Items";
+  $("ordClear").hidden=!lines;
+  $("ordShip").innerHTML = profileDone() ? `${esc(ME.dealer)}<br>${esc(addrLine(ME))}<br><span class="help">Wrong address? Change it in Your Details on the Admin tab.</span>` : "Finish Your Details on the Admin tab first.";
+}
+$("ordList").addEventListener("click",e=>{ const b=e.target.closest("[data-oq]"); if(!b) return; const i=Number(b.dataset.oq), it=ORDER_ITEMS[i];
+  ORD.qty[i]=Math.max(0,Math.min(it.max,(ORD.qty[i]||0)+Number(b.dataset.d))); if(!ORD.qty[i]) delete ORD.qty[i]; saveOrd(); $("ordErr").innerHTML=""; renderOrder(); });
+$("ordQ").addEventListener("input",renderOrder);
+$("ordReason").addEventListener("input",()=>{ ORD.reason=$("ordReason").value; saveOrd(); $("ordErr").innerHTML=""; });
+$("ordNotes").addEventListener("input",()=>{ ORD.notes=$("ordNotes").value; saveOrd(); });
+$("ordMgr").addEventListener("change",()=>{ const v=$("ordMgr").value.trim().toLowerCase(); $("ordMgr").value=v;
+  if(v && !validEmail(v)){ showMgrErr("Enter a full email address, e.g. first.last@xplore.ca."); return; } showMgrErr(""); $("ordErr").innerHTML=""; lsSet(OK_MGR,v); if(v) toast("Manager's email saved"); });
+function showMgrErr(m){ $("ordMgr").classList.toggle("bad",!!m); $("ordMgr_err").hidden=!m; $("ordMgr_err").textContent=m; }
+function clearOrder(){ ORD.qty={}; ORD.reason=""; ORD.notes=""; saveOrd(); $("ordReason").value=""; $("ordNotes").value=""; $("ordErr").innerHTML=""; renderOrder(); }
+$("ordClear").addEventListener("click",clearOrder);
+$("ordSend").addEventListener("click",()=>{
+  const err=(m,f)=>{ $("ordErr").innerHTML=`<div class="note warn">${esc(m)}</div>`; if(f) $(f).focus(); };
+  $("ordErr").innerHTML="";
+  const picked=ORDER_ITEMS.map((it,i)=>({it,n:ORD.qty[i]||0})).filter(x=>x.n>0);
+  if(!picked.length) return err("Add at least one item.");
+  const reason=$("ordReason").value.trim(); if(!reason) return err("Enter the reason for the manual order.","ordReason");
+  const mgr=$("ordMgr").value.trim().toLowerCase();
+  if(!validEmail(mgr)){ showMgrErr("Enter your manager's email, e.g. first.last@xplore.ca."); return err("Enter your manager's email.","ordMgr"); }
+  lsSet(OK_MGR,mgr);
+  if(!profileDone()) return err("Finish Your Details on the Admin tab first.");
+  const when=new Date().toLocaleDateString([], {year:"numeric",month:"long",day:"numeric"});
+  const notes=$("ordNotes").value.trim(), units=picked.reduce((a,x)=>a+x.n,0);
+  const subject=`Manual Inventory Order: ${ME.dealer} (${when})`;
+  const body=`Hello,
+
+Please approve this manual inventory order. It couldn't be submitted through Salesforce.
+
+SAP dealer: ${ME.dealer}
+SAP account #: ${ME.sap}
+Salesforce account #: ${ME.sf}
+Ship to: ${addrLine(ME)}
+Date: ${when}
+
+Reason for manual order: ${reason}${notes?`\nSpecial instructions: ${notes}`:""}
+
+Items (${units}):
+${picked.map(x=>`- ${x.n} x ${x.it.label}`).join("\n")}
+
+Thank you,`;
+  openMailSheet({title:"Send the order to your manager", to:mgr, subject, body,
+    extra:`<button class="btn ghost block" type="button" id="ordDone">Sent It. Clear This Order</button>`});
+  $("ordDone").addEventListener("click",()=>{ clearOrder(); $("detailSheet").hidden=true; toast("Order cleared"); });
+});
 
 /* ---------- barcode scanning from a photo ---------- */
 let photoTarget="log";
@@ -1356,12 +1500,12 @@ function openDetail(id){
       ${e.serial?`<dt>Serial</dt><dd class="mono">${esc(e.serial)}</dd>`:`<dt>Quantity</dt><dd>${esc(e.qty)}</dd>`}
       <dt>When</dt><dd>${esc(fmtFull(e.ts))}</dd>
       ${e.account?`<dt>Account</dt><dd class="mono">${esc(e.account)}</dd>`:""}
-      ${e.toTech?`<dt>Transferred to</dt><dd>${esc(e.toTech)}</dd>`:""}
-      ${e.from?`<dt>Received from</dt><dd>${esc(e.from)}</dd>`:""}
-      ${e.rma?`<dt>RMA number</dt><dd class="mono">${esc(e.rma)}</dd>`:""}
+      ${e.toTech?`<dt>Transferred To</dt><dd>${esc(e.toTech)}</dd>`:""}
+      ${e.from?`<dt>Received From</dt><dd>${esc(e.from)}</dd>`:""}
+      ${e.rma?`<dt>RMA Number</dt><dd class="mono">${esc(e.rma)}</dd>`:""}
       ${e.type==="transfer"?`<dt>Method</dt><dd>${!e.tracking?"In person":e.tracking==="Shipped"?"Shipped":`Shipped · <span class="mono">${esc(e.tracking)}</span>`}</dd>`:""}
       ${e.jobId ? (()=>{ const mates=Store.events.filter(x=>x.jobId===e.jobId && x.id!==e.id && !x.voided);
-          return mates.length ? `<dt>Installed with</dt><dd>${mates.map(x=>esc((SKU[x.sku]&&SKU[x.sku].name)||x.skuName)+(x.serial?` <span class="mono">${esc(x.serial)}</span>`:x.qty>1?` × ${esc(x.qty)}`:"")).join("<br>")}</dd>` : ""; })() : ""}
+          return mates.length ? `<dt>Installed With</dt><dd>${mates.map(x=>esc((SKU[x.sku]&&SKU[x.sku].name)||x.skuName)+(x.serial?` <span class="mono">${esc(x.serial)}</span>`:x.qty>1?` × ${esc(x.qty)}`:"")).join("<br>")}</dd>` : ""; })() : ""}
       <dt>GPS</dt><dd>${map}</dd>
       ${e.note?`<dt>Note</dt><dd>${esc(e.note)}</dd>`:""}
       ${e.voided?`<dt>Voided</dt><dd>${e.voidedAt?esc(fmtFull(e.voidedAt)):"Yes"}${e.voidReason?" · "+esc(e.voidReason):""}</dd>`:""}
@@ -1383,7 +1527,7 @@ function openDetail(id){
   });
   const vs=$("voidStart");
   if(vs) vs.addEventListener("click",()=>{
-    $("voidArea").innerHTML=`<div class="card"><div class="field"><label for="voidReason">Why are you voiding it?</label>
+    $("voidArea").innerHTML=`<div class="card"><div class="field"><label for="voidReason">Reason for Voiding</label>
       <input type="text" id="voidReason" placeholder="Scanned wrong unit, duplicate…"></div>
       <p class="help">The entry stays in history, marked as voided, and no longer counts toward your stock.</p>
       <div class="row"><button class="btn block" type="button" data-close="detailSheet">Keep It</button><button class="btn danger block" type="button" id="voidGo">Void Entry</button></div></div>`;
@@ -1396,32 +1540,192 @@ document.addEventListener("click",e=>{ const c=e.target.closest("[data-close]");
 document.querySelectorAll(".sheet").forEach(s=>s.addEventListener("click",e=>{ if(e.target===s) s.hidden=true; }));
 
 /* ---------- your details ---------- */
-function fillMe(){ $("nameIn").value=ME.name; $("dealerIn").value=ME.dealer; }
-fillMe();
-function saveMe(){
-  const n=$("nameIn").value.trim(), d=$("dealerIn").value.trim();
-  if(!n || !d){ toast(!n?"Your name can't be blank.":"Dealership can't be blank."); fillMe(); return; }
-  ME.name=n; ME.dealer=d; lsSet(K.me, ME); paintHeader(); toast("Details saved");
+/* ---------- your details (same fields on the setup screen and the Admin tab) ---------- */
+const PROVS=["AB","BC","MB","NB","NL","NS","NT","NU","ON","PE","QC","SK","YT"];
+/* Each tech types their own details. The app only checks they're in the same format as
+   Xplore's records (fictional examples shown), then tidies spacing, capitals and dashes. */
+// lowercase words get a capital; ALL-CAPS words longer than 3 letters are softened (SMITH → Smith); XCI, NS, PEI stay
+const titleWord=w=>(w===w.toLowerCase() || (w===w.toUpperCase() && w.replace(/[^A-Za-z]/g,"").length>3)) ? w.charAt(0).toUpperCase()+w.slice(1).toLowerCase() : w;
+const titleCase=v=>v.replace(/\s+/g," ").trim().split(" ").map(w=>w.split("-").map(titleWord).join("-")).join(" ");
+const PROFILE=[
+  {k:"name", label:"Your Name", ph:"", ex:"e.g. Jane Smith", ac:"name",
+   hint:"First and last name, e.g. Jane Smith",
+   norm:v=>titleCase(v), ok:v=>/^[A-Za-zÀ-ÿ'’.-]+( [A-Za-zÀ-ÿ'’.-]+)+$/.test(v),
+   bad:"Enter your first and last name, e.g. Jane Smith."},
+  {k:"dealer", label:"SAP Dealer Name", ph:"", ex:"e.g. XCI Example Tech - Jane Smith", ac:"organization",
+   hint:"Exactly as it appears in SAP, e.g. XCI Example Tech - Jane Smith",
+   norm:v=>{ let x=v.replace(/[‒-―−]/g,"-").replace(/\s*-\s*/g," - ").replace(/\s+/g," ").trim();
+     x=titleCase(x).replace(/^xci\b/i,"XCI").replace(/\btech\b(?= - )/i,"Tech").replace(/\b(ns|nb|nl|pei|mb)\b(?=.* - )/gi,m=>m.toUpperCase()); return x; },
+   ok:v=>/^XCI .+ Tech - [^ ].* [^ ].*$/.test(v),
+   bad:"Use your SAP dealer name: XCI, your area, Tech, a dash, then your name. For example: XCI Example Tech - Jane Smith."},
+  {k:"sap", label:"SAP Account #", ph:"", ex:"6 digits, e.g. 100123", im:"numeric", mono:true,
+   hint:"6 digits, e.g. 100123",
+   norm:v=>v.replace(/\D/g,""), ok:v=>/^\d{6}$/.test(v), bad:"Your SAP account # is 6 digits, e.g. 100123."},
+  {k:"sf", label:"Salesforce Account #", ph:"", ex:"7 digits, e.g. 1700123", im:"numeric", mono:true,
+   hint:"7 digits, e.g. 1700123",
+   norm:v=>v.replace(/\D/g,""), ok:v=>/^\d{7}$/.test(v), bad:"Your Salesforce account # is 7 digits, e.g. 1700123."},
+  {k:"street", ph:"Street and unit", ex:"e.g. 123 Main St #4", ac:"shipping street-address",
+   norm:v=>titleCase(v.replace(/\s*,\s*/g,", ")), ok:v=>streetError(v)==="", get bad(){ return STREET_BAD; }},
+  {k:"city", ph:"City", ex:"e.g. Cambridge, ON", ac:"shipping address-level2",
+   norm:v=>titleCase(v), ok:v=>/^[A-Za-zÀ-ÿ'’. -]{2,}$/.test(v), bad:"Enter your city."},
+  {k:"prov", norm:v=>v, ok:v=>PROVS.includes(v), bad:"Choose your province."},
+  {k:"postal", ph:"Postal code", ex:"e.g. A1A 1A1", ac:"shipping postal-code",
+   norm:v=>normPostal(v)||v.trim().toUpperCase(), ok:v=>!!normPostal(v), bad:"Enter a postal code like A1A 1A1."}
+];
+/* street address: a civic number, then a street name. City, province and postal code have their own boxes. */
+let STREET_BAD="";
+function streetError(v){
+  if(!/^\d/.test(v)) return STREET_BAD="Start with the street number, e.g. 123 Main St.";
+  if(!/^\d[\dA-Za-z\/-]*\s+(?=.*[A-Za-zÀ-ÿ]{2})/.test(v)) return STREET_BAD="Add the street name after the number, e.g. 123 Main St.";
+  if(/\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/i.test(v)) return STREET_BAD="Take the postal code out. It goes in its own box.";
+  if(/,\s*(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)\b/i.test(v)) return STREET_BAD="Only the street and unit go here. City and province have their own boxes.";
+  if(v.length>80) return STREET_BAD="That's too long for a street address.";
+  return STREET_BAD="";
 }
-$("nameIn").addEventListener("change",saveMe); $("dealerIn").addEventListener("change",saveMe);
+const addrLine=me=>`${me.street}, ${me.city}, ${me.prov} ${me.postal}`;
+const fid=(pre,k)=>pre+"_"+k;
+function renderProfile(pre){
+  const inp=f=>`<input type="text" id="${fid(pre,f.k)}" data-pk="${f.k}" ${f.ph?` placeholder="${esc(f.ph)}"`:""}${f.ac?` autocomplete="${f.ac}"`:""}${f.im?` inputmode="${f.im}"`:""}${f.mono?` class="mono"`:""} autocapitalize="${f.k==="postal"?"characters":"words"}">`;
+  const P=Object.fromEntries(PROFILE.map(f=>[f.k,f]));
+  const errLine=k=>`<small class="ferr" id="${fid(pre,k)}_err" hidden></small>`;
+  $(pre==="s"?"setupFields":"adminFields").innerHTML =
+    ["name","dealer","sap","sf"].map(k=>`<div class="field"><label for="${fid(pre,k)}">${esc(P[k].label)}</label>${inp(P[k])}<small class="hint">${esc(P[k].ex)}</small>${errLine(k)}</div>`).join("")+
+    `<div class="field"><label for="${fid(pre,"street")}">Shipping Address</label>${inp(P.street)}<small class="hint">${esc(P.street.ex)}</small>${errLine("street")}
+      <div class="addr">${inp(P.city)}<select id="${fid(pre,"prov")}" data-pk="prov" aria-label="Province" autocomplete="shipping address-level1"><option value="">Prov.</option>${PROVS.map(v=>`<option>${v}</option>`).join("")}</select></div>
+      <small class="hint">${esc(P.city.ex)}</small>${errLine("city")}${errLine("prov")}
+      ${inp(P.postal)}<small class="hint">${esc(P.postal.ex)}</small>${errLine("postal")}</div>`;
+}
+renderProfile("s"); renderProfile("a");
+function normPostal(v){ const k=String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,""); return /^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(k) ? k.slice(0,3)+" "+k.slice(3) : null; }
+function showErr(pre,k,msg){ const el=$(fid(pre,k)), e=$(fid(pre,k)+"_err"); if(!el||!e) return; el.classList.toggle("bad",!!msg); e.hidden=!msg; e.textContent=msg||""; }
+function checkField(pre,f){
+  const el=$(fid(pre,f.k)); const v=f.norm(el.value||"");
+  if(f.k!=="prov" && v!==el.value) el.value=v;
+  const good=!!v && f.ok(v); showErr(pre,f.k, good?"":f.bad); return good?v:null;
+}
+/* read and check a form; returns {vals} or {bad:first bad field} */
+/* Canada Post: the first letter of a postal code tells you the province */
+const POSTAL_LETTERS={NL:"A",NS:"B",PE:"C",NB:"E",QC:"GHJ",ON:"KLMNP",MB:"R",SK:"S",AB:"T",BC:"V",NT:"X",NU:"X",YT:"Y"};
+const PROV_NAMES={NL:"Newfoundland and Labrador",NS:"Nova Scotia",PE:"PEI",NB:"New Brunswick",QC:"Quebec",ON:"Ontario",MB:"Manitoba",SK:"Saskatchewan",AB:"Alberta",BC:"British Columbia",NT:"Northwest Territories",NU:"Nunavut",YT:"Yukon"};
+function postalProvError(prov, postal){
+  const pc=normPostal(postal); if(!pc || !POSTAL_LETTERS[prov]) return "";
+  if(POSTAL_LETTERS[prov].includes(pc[0])) return "";
+  const L=POSTAL_LETTERS[prov].split("");
+  const starts = L.length===1 ? L[0] : L.slice(0,-1).join(", ")+" or "+L[L.length-1];
+  const fits=Object.keys(POSTAL_LETTERS).filter(k=>POSTAL_LETTERS[k].includes(pc[0])).map(k=>PROV_NAMES[k]);
+  return `${pc} isn't ${/^[AEIOU]/.test(PROV_NAMES[prov])?"an":"a"} ${PROV_NAMES[prov]} postal code. ${PROV_NAMES[prov]} codes start with ${starts}.`+(fits.length?` Codes starting with ${pc[0]} are in ${fits.join(" or ")}.`:"");
+}
+function checkPostalProv(pre){
+  const msg=postalProvError($(fid(pre,"prov")).value, $(fid(pre,"postal")).value);
+  if(msg) showErr(pre,"postal",msg);
+  return !msg;
+}
+function readProfile(pre){
+  const vals={}; let first=null;
+  PROFILE.forEach(f=>{ const v=checkField(pre,f); if(v==null){ if(!first) first=f; } else vals[f.k]=v; });
+  if(!first && !checkPostalProv(pre)) first=PROFILE.find(f=>f.k==="postal");
+  return first ? {bad:first} : {vals};
+}
+const profileDone=()=>PROFILE.every(f=>{ const v=ME[f.k]||""; return !!v && f.ok(f.norm(v)); }) && !postalProvError(ME.prov, ME.postal);
+function fillMe(pre){ (pre?[pre]:["s","a"]).forEach(p=>PROFILE.forEach(f=>{ $(fid(p,f.k)).value=ME[f.k]||""; showErr(p,f.k,""); })); }
+fillMe();
+// tidy and check each field when the tech leaves it
+function tidyField(pre,e){
+  const el=e.target.closest("[data-pk]"); if(!el || !el.value) return;
+  const ok=checkField(pre, PROFILE.find(x=>x.k===el.dataset.pk));
+  if(ok!=null && (el.dataset.pk==="postal" || el.dataset.pk==="prov") && $(fid(pre,"postal")).value) { if(checkPostalProv(pre)) showErr(pre,"postal",""); }
+}
+["s","a"].forEach(pre=>{ const box=$(pre==="s"?"setupFields":"adminFields");
+  box.addEventListener("blur",e=>tidyField(pre,e),true);
+  box.addEventListener("change",e=>{ if(e.target.tagName==="SELECT") tidyField(pre,e); }); });
+function saveMe(e){
+  const el=e.target.closest("[data-pk]"); if(!el) return;
+  const f=PROFILE.find(x=>x.k===el.dataset.pk);
+  const v=checkField("a",f);
+  if(v==null) return;               // the red message under the box says what to fix
+  if((f.k==="postal" || f.k==="prov") && !checkPostalProv("a")) return;
+  if(f.k==="prov") showErr("a","postal","");
+  ME[f.k]=v;
+  if(f.k==="prov" || f.k==="postal"){ ME.prov=$("a_prov").value; ME.postal=normPostal($("a_postal").value)||ME.postal; }
+  lsSet(K.me, ME); paintHeader(); toast("Details saved");
+}
+$("adminFields").addEventListener("change",saveMe);
 
-/* first-run setup: name and dealership */
-/* setup: name and dealership, then Google Sheets (required wherever Google sign-in works) */
+/* Google backup guide: why it's needed and how to make a Google account with an @xplore.ca email */
+const WORK_DOMAIN="xplore.ca";
+const isWorkEmail=e=>new RegExp("@"+WORK_DOMAIN.replace(/\./g,"\\.")+"$","i").test(String(e||"").trim());
+const GOOGLE_SIGNUP="https://accounts.google.com/signup";
+const GOOGLE_RECOVER="https://accounts.google.com/signin/recovery";
+const ic=(d)=>`<span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg></span>`;
+function guideHTML(){
+  return `<p class="help" style="color:var(--ink);font-size:1rem;margin-bottom:12px">Stock Tracker has no server. Everything you log is saved only on this phone, so it needs a backup. You'll connect a free Google account made with your <b>@${WORK_DOMAIN}</b> work email.</p>
+  <span class="eyebrow">Why This Step Is Required</span>
+  <ul class="why" style="margin:8px 0 14px">
+    <li>${ic('<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>')}<span><b>Your phone isn't a safe place on its own</b>If it's lost, broken, reset or replaced, every entry on it is gone. Google Sheets keeps a copy that brings everything back on a new phone.</span></li>
+    <li>${ic('<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>')}<span><b>It's your proof at quarterly counts</b>Your history shows what you received, deployed, transferred, sent on RMA and recycled. Without a backup you can't account for missing units.</span></li>
+    <li>${ic('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>')}<span><b>Why your @${WORK_DOMAIN} email</b>It keeps work records off your personal accounts, makes the sheet easy to find again, and is the account you'll always have while you work here.</span></li>
+  </ul>
+  <div class="guide" style="display:flex;flex-direction:column;gap:10px">
+    <details class="grp" open><summary><span class="lbl2">I Need to Create One<small>About 3 minutes. It's free and needs no Gmail address.</small></span></summary>
+      <div class="grp-body">
+        <ol class="gsteps">
+          <li>Tap <b>Open Google Sign-Up</b> below. It opens in a new tab, so you can come back here.</li>
+          <li>Type your first and last name, then tap <b>Next</b>. Add your birthday and gender, then tap <b>Next</b>.</li>
+          <li>When Google suggests a Gmail address, tap <b>Use your existing email</b> instead (you may need to tap <b>Create your own Gmail address</b> or scroll first). Type your <b>@${WORK_DOMAIN}</b> email.</li>
+          <li>Google emails a code to your Xplore inbox. Open your work email, copy the code, and type it in.</li>
+          <li>Make a password. This is a new Google password, separate from the one you use for your Xplore email. Write it down somewhere safe.</li>
+          <li>You can skip the phone number and recovery steps. Agree to Google's terms to finish.</li>
+          <li>Come back to this tab and tap <b>Connect Google Sheets</b>. Pick your <b>@${WORK_DOMAIN}</b> account.</li>
+        </ol>
+        <a class="btn block" href="${GOOGLE_SIGNUP}" target="_blank" rel="noopener">Open Google Sign-Up</a>
+        <p class="help">If Google says your email is already in use, you made an account before. Use <a href="${GOOGLE_RECOVER}" target="_blank" rel="noopener">Forgot password</a> to get back in.</p>
+      </div></details>
+    <details class="grp"><summary><span class="lbl2">I Already Have One<small>A Google account that signs in with my @${WORK_DOMAIN} email</small></span></summary>
+      <div class="grp-body">
+        <p class="help" style="color:var(--ink)">Tap <b>Connect Google Sheets</b>. When Google asks which account to use, pick your <b>@${WORK_DOMAIN}</b> account. If it isn't listed, tap <b>Use another account</b> and sign in with your work email and Google password.</p>
+      </div></details>
+  </div>
+  <p class="help" style="margin-top:12px">Stock Tracker can only open the one sheet it creates. It can't see anything else in your Google Drive. On a new phone, connect the same account and your entries come back.</p>`;
+}
+function openGuideSheet(){
+  $("detailBody").innerHTML=`<div class="sheet-head"><h2 id="detailH">Google Backup Setup</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>${guideHTML()}<button class="btn primary block" type="button" id="gsConnect">Connect Google Sheets</button>`;
+  $("detailSheet").hidden=false;
+}
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-gsguide]")) openGuideSheet();
+  if(e.target.closest("[data-gsguide-inline]")){ $("setupWrong").hidden=true; $("setupGMain").hidden=false; $("setupGBtns").hidden=false; $("setup").scrollTop=0; }
+  if(e.target.closest("#gsKeepOther")){ GS.allowOther=true; gsSave(); showSetup(); paintGoogle(); toast("Backing up to "+GS.email); }
+});
+function wrongAcct(){ return gsAvailable() && GS.connected && GS.email && !isWorkEmail(GS.email) && !GS.allowOther; }
+
+/* setup: your details, then Google Sheets (required wherever Google sign-in works) */
 function showSetup(){
-  const needInfo=!ME.name || !ME.dealer;
-  const needGoogle=!needInfo && gsAvailable() && !GS.connected;
+  const needInfo=!profileDone();
+  const wrong=!needInfo && wrongAcct();
+  const needGoogle=!needInfo && ((gsAvailable() && !GS.connected) || wrong);
   $("setup").hidden=!(needInfo || needGoogle);
   $("setupForm").hidden=!needInfo; $("setupGoogle").hidden=!needGoogle;
-  if(needInfo){ $("setupName").value=ME.name; $("setupDealer").value=ME.dealer; $("setupStep1").hidden=!(gsAvailable() && !GS.connected); }
+  if(needGoogle){
+    if(!$("setupGuide").innerHTML) $("setupGuide").innerHTML=guideHTML();
+    $("setupGMain").hidden=wrong; $("setupWrong").hidden=!wrong; $("setupGBtns").hidden=wrong;
+    if(wrong) $("setupWrong").innerHTML=`<h2>That's Not Your @${WORK_DOMAIN} Account</h2>
+      <p class="help" style="color:var(--ink);font-size:1rem;margin:10px 0">You connected <b>${esc(GS.email)}</b>. Your backup should be in the Google account made with your <b>@${WORK_DOMAIN}</b> work email, so your records stay with your work and are easy to recover.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn primary block" type="button" id="gsSwitchSetup">Switch to My @${WORK_DOMAIN} Account</button>
+        <button class="btn block" type="button" data-gsguide-inline>I Don't Have One Yet</button>
+        <button class="btn ghost block" type="button" id="gsKeepOther">Keep ${esc(GS.email)}</button>
+      </div>`;
+  }
+  if(needInfo){ fillMe("s"); $("setupStep1").hidden=!(gsAvailable() && !GS.connected); }
   if(needGoogle) $("setupGErr").innerHTML = navigator.onLine ? "" : `<div class="note warn">You're offline. Connect to the internet to finish setup.</div>`;
 }
 $("setupForm").addEventListener("submit",e=>{
   e.preventDefault();
-  const n=$("setupName").value.trim(), d=$("setupDealer").value.trim();
-  if(!n || !d){ $("setupErr").innerHTML=`<div class="note warn">${!n&&!d?"Enter your name and dealership.":!n?"Enter your name.":"Enter your dealership."}</div>`; ($(!n?"setupName":"setupDealer")).focus(); return; }
-  ME.name=n; ME.dealer=d;
+  const r=readProfile("s");
+  if(r.bad){ $("setupErr").innerHTML=`<div class="note warn">Fix the boxes marked in red, then tap Continue.</div>`; $(fid("s",r.bad.k)).focus(); return; }
+  Object.assign(ME, r.vals);
   if(!lsSet(K.me, ME)){ $("setupErr").innerHTML=`<div class="note warn">This phone isn't letting Stock Tracker save. Turn off Private Browsing in Safari and try again.</div>`; return; }
-  $("setupErr").innerHTML=""; fillMe(); paintHeader(); showSetup();
+  $("setupErr").innerHTML=""; fillMe("a"); paintHeader(); showSetup();
 });
 function paintHeader(){
   $("who").textContent = ME.name ? ME.name+(ME.dealer?" · "+ME.dealer:"") : "Saved on this phone";
@@ -1489,7 +1793,7 @@ function buildWorkbook(){
   ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(1,aoa.length-1),c:COLS.length-1}})};
   const onHand=onHandRows();
   const ws2=XLSX.utils.aoa_to_sheet(onHand); ws2["!cols"]=[{wch:34},{wch:22},{wch:14}];
-  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealership",ME.dealer],["Saved",new Date().toLocaleString()],["Entries",Store.events.length],[],["Exported from Stock Tracker for your records."]]);
+  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealer",ME.dealer],["SAP account #",ME.sap],["Salesforce account #",ME.sf],["Shipping address",addrLine(ME)],["Saved",new Date().toLocaleString()],["Entries",Store.events.length],[],["Exported from Stock Tracker for your records."]]);
   info["!cols"]=[{wch:14},{wch:40}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"History"); XLSX.utils.book_append_sheet(wb,ws2,"On hand"); XLSX.utils.book_append_sheet(wb,info,"About");
@@ -1498,7 +1802,7 @@ function buildWorkbook(){
 async function exportExcel(btn){
   if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
   if(!Store.events.length){ toast("Nothing to export yet."); return; }
-  if(!ME.name){ setTab("backup"); $("nameIn").focus(); toast("Add your name first so your file is easy to find."); return; }
+  if(!ME.name){ setTab("backup"); $("a_name").focus(); toast("Add your name first so your file is easy to find."); return; }
   const name=fileName();
   const file=new File([buildWorkbook()], name, {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
   if(btn) btn.disabled=true;
@@ -1671,7 +1975,7 @@ function renderCount(){
   if(cmpMode==="list"){
     $("listBox").innerHTML = L
       ? `<div class="card"><div class="cmp-head"><h3>${esc(L.file)}</h3><button class="btn sm" type="button" data-pick-list>Replace</button></div>
-         <div class="field"><label for="listCol">Serial number column</label><select id="listCol">${L.headers.map((h,i)=>`<option value="${i}"${i===L.col?" selected":""}>${esc(h)}</option>`).join("")}</select></div>
+         <div class="field"><label for="listCol">Serial Number Column</label><select id="listCol">${L.headers.map((h,i)=>`<option value="${i}"${i===L.col?" selected":""}>${esc(h)}</option>`).join("")}</select></div>
          <span class="help">${listKeys().size} serials on this list.</span></div>`
       : `<div class="empty"><h3>Load the inventory team's list</h3><p>Pick the Excel or CSV count list they sent you. Your scans are compared against it line by line.</p><button class="btn primary" type="button" data-pick-list>Choose List File</button></div>`;
     const sel=$("listCol"); if(sel) sel.addEventListener("change",()=>{ COUNT.list.col=Number(sel.value); saveCount(); renderCount(); });
@@ -1721,7 +2025,7 @@ $("countExport").addEventListener("click",async()=>{
   const ws=XLSX.utils.aoa_to_sheet(aoa);
   ws["!cols"]=[22,32,30,8,20,10,...(hasList?[14]:[]),40].map(w=>({wch:w}));
   ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(1,aoa.length-1),c:head.length-1}})};
-  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealership",ME.dealer],["Count started",new Date(COUNT.startedAt).toLocaleString()],["Saved",new Date().toLocaleString()],["Serials scanned",COUNT.items.length],["Compared with",hasList?COUNT.list.file:"My records only"]]);
+  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealer",ME.dealer],["SAP account #",ME.sap],["Salesforce account #",ME.sf],["Shipping address",addrLine(ME)],["Count started",new Date(COUNT.startedAt).toLocaleString()],["Saved",new Date().toLocaleString()],["Serials scanned",COUNT.items.length],["Compared with",hasList?COUNT.list.file:"My records only"]]);
   info["!cols"]=[{wch:16},{wch:40}];
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Count"); XLSX.utils.book_append_sheet(wb,info,"About");
   const d=new Date(COUNT.startedAt), stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -2040,13 +2344,13 @@ function paintGoogle(){
   }
   if(!GS.connected){
     pill.textContent="Off";
-    txt.innerHTML='Save every entry to a Google Sheet in your own Google Drive, automatically. Stock Tracker can only open the sheet it creates, nothing else in your Drive. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>';
-    btns.innerHTML=`<button class="btn primary" type="button" id="gsConnect">Connect Google Sheets</button>`;
+    txt.innerHTML=`Save every entry to a Google Sheet in the Google account made with your @${WORK_DOMAIN} email. Stock Tracker can only open the sheet it creates, nothing else in your Drive. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>`;
+    btns.innerHTML=`<button class="btn primary" type="button" id="gsConnect">Connect Google Sheets</button><button class="btn ghost" type="button" data-gsguide>How to Set Up</button>`;
     banner.hidden=true; return;
   }
   const st=gsStatus();
   pill.textContent=st.pill;
-  txt.innerHTML=`${GS.email?`Connected as <b>${esc(GS.email)}</b><br>`:""}${esc(st.text)}`;
+  txt.innerHTML=`${GS.email?`Connected as <b>${esc(GS.email)}</b><br>`:""}${esc(st.text)}${GS.email&&!isWorkEmail(GS.email)?`<br><span style="color:var(--warn)">This isn't your @${WORK_DOMAIN} account. Tap Switch Account to back up to your work Google account.</span>`:""}`;
   btns.innerHTML=`<button class="btn primary" type="button" data-gssync${gsBusy?" disabled":""}>Sync Now</button>`+
     (GS.sheetId?`<a class="btn" href="https://docs.google.com/spreadsheets/d/${encodeURIComponent(GS.sheetId)}/edit" target="_blank" rel="noopener">Open Sheet</a>`:"")+
     `<button class="btn ghost" type="button" id="gsDisconnect">Switch Account</button>`;
@@ -2067,19 +2371,20 @@ async function gsSyncNow(){
 }
 document.addEventListener("click", async e=>{
   if(e.target.closest("[data-gssync]")){ gsSyncNow(); return; }
-  if(e.target.closest("#gsConnect, #gsConnectSetup")){
+  if(e.target.closest("#gsConnect, #gsConnectSetup, #gsSwitchSetup")){
     $("setupGErr").innerHTML="";
-    try{ Object.assign(GS,{email:"", sheetId:""}); gsSave(); await gsAuth("select_account consent"); }
+    try{ Object.assign(GS,{email:"", sheetId:"", allowOther:false}); gsSave(); await gsAuth("select_account consent"); }
     catch(err){ $("setupGErr").innerHTML=`<div class="note warn">Google sign-in didn't finish. Tap Connect and try again.</div>`; toast("Google sign-in didn't finish. Try again."); return; }
     GS.connected=true; GS.rev++; gsErr=""; gsSave();
     try{ const u=await gapi("https://www.googleapis.com/oauth2/v3/userinfo"); GS.email=u.email||""; gsSave(); }catch(err){}
     showSetup(); paintBackup(); paintGoogle(); await gsSync();
-    if(!gsErr) toast("Connected. Your entries now save to Google Sheets.");
+    if(!gsErr) toast(wrongAcct() ? "Connected, but that isn't an @"+WORK_DOMAIN+" account" : "Connected. Your entries now save to Google Sheets.");
+    if($("detailSheet") && $("detailBody").querySelector(".guide")) $("detailSheet").hidden=true;
     return;
   }
   if(e.target.closest("#gsDisconnect")){
     try{ if(GS.token && window.google && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(GS.token, ()=>{}); }catch(err){}
-    Object.assign(GS,{connected:false, token:"", exp:0, email:"", sheetId:"", synced:0}); gsErr=""; gsSave();
+    Object.assign(GS,{connected:false, token:"", exp:0, email:"", sheetId:"", synced:0, allowOther:false}); gsErr=""; gsSave();
     paintBackup(); paintGoogle(); showSetup();
   }
 });
