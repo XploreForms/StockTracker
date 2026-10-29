@@ -435,7 +435,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <div class="note warn">You're sending these items, so you're responsible for emailing the transfer to the inventory team. Stock Tracker drafts the email after you log it.</div>
       </div>
       <div class="field" id="rmaBlock" hidden>
-        <label for="rmaIn">RMA Number <span class="muted">(Optional)</span></label>
+        <label for="rmaIn">RMA Number</label>
         <input type="text" id="rmaIn" autocomplete="off" autocapitalize="characters" placeholder="From the RMA label or email" class="mono">
         <a class="help" href="https://form.jotform.com/72404477841257" target="_blank" rel="noopener">Need an RMA number? Open the RMA Request Form</a>
       </div>
@@ -1162,7 +1162,7 @@ function getLocation(){
 function paintLoc(){
   $("locDot").className="dot"+(LOC.status==="ok"?" ok":LOC.status==="pending"?" wait":"");
   $("locRetry").hidden = !(LOC.status!=="ok" && LOC.status!=="pending" && LOC.status!=="none");
-  $("locTxt").textContent = LOC.status==="ok" ? `GPS captured (±${LOC.acc} m)` :
+  $("locTxt").textContent = LOC.status==="ok" ? `GPS captured` :
     LOC.status==="pending" ? "Getting GPS location…" :
     LOC.status==="none" ? "GPS is captured when you save" :
     LOC.status==="denied" ? HELP.loc :
@@ -1260,6 +1260,7 @@ async function saveMulti(){
   }
   if(t==="transfer"){ toDealer=$("toIn").value.trim(); if(!toDealer) return err("Enter the dealer you're transferring to.","toIn");
     tracking = HOW==="ship" ? ($("trackIn").value.trim() || "Shipped") : ""; }
+  if(t==="rma" && !$("rmaIn").value.trim()) return err("Enter the RMA number.","rmaIn");
   if(!F.lines.length) return err({receive:"Scan or add the items you received.",transfer:"Scan or add the items you're transferring.",rma:"Scan the items going back on RMA.",recycle:"Scan or add the items you're recycling."}[t]);
   const unknown=F.lines.find(l=>!SKU[l.sku]); if(unknown) return err(`Pick the item for ${unknown.serial}.`);
   if(t==="receive"){
@@ -1388,9 +1389,7 @@ $("ordSend").addEventListener("click",()=>{
   const when=new Date().toLocaleDateString([], {year:"numeric",month:"long",day:"numeric"});
   const notes=$("ordNotes").value.trim(), units=picked.reduce((a,x)=>a+x.n,0);
   const subject=`Manual Inventory Order: ${ME.dealer} (${when})`;
-  const body=`Hello,
-
-Please approve this manual inventory order. It couldn't be submitted through Salesforce.
+  const body=`Manual Order Request
 
 SAP dealer: ${ME.dealer}
 SAP account #: ${ME.sap}
@@ -1508,7 +1507,7 @@ $("histList").addEventListener("click",e=>{ const b=e.target.closest("[data-ev]"
 function openDetail(id){
   const e=Store.events.find(x=>x.id===id); if(!e) return;
   const l=evLine(e), T=TYPES[e.type]||{label:e.type};
-  const map = e.lat!=null ? `<a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" rel="noopener">${e.lat}, ${e.lng}</a> <span class="muted">±${esc(e.acc)} m</span>` : `<span class="muted">Not captured</span>`;
+  const map = e.lat!=null ? `<a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" rel="noopener">${e.lat}, ${e.lng}</a>` : `<span class="muted">Not captured</span>`;
   $("detailBody").innerHTML=`
     <div class="sheet-head"><h2 id="detailH">${esc(l.name)}</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>
     <div class="t-${esc(e.type)}"><span class="pill">${e.voided?"Voided":esc(T.label)}</span></div>
@@ -1762,7 +1761,6 @@ const COLS = [
   ["Note",             e=>e.note||""],
   ["Latitude",         e=>e.lat??""],
   ["Longitude",        e=>e.lng??""],
-  ["GPS accuracy (m)", e=>e.acc??""],
   ["Voided",           e=>e.voided?"Yes":""],
   ["Void reason",      e=>e.voidReason||""],
   ["Entry ID",         e=>e.id],
