@@ -63,6 +63,28 @@ button{cursor:pointer}
 .top-txt{min-width:0;flex:1}
 .mode{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:rgba(255,255,255,.12);white-space:nowrap}
 .mode.local{background:rgba(242,154,107,.25)}
+.mode.off{background:#F29A6B;color:#2A1206}
+.netbar{background:#F29A6B;color:#2A1206;font-size:.85rem;font-weight:600}
+.netbar>div{max-width:640px;margin:0 auto;padding:6px 16px;display:flex;align-items:center;gap:8px}
+.netbar svg{width:16px;height:16px;flex:none}
+.sa-in{display:flex;align-items:stretch;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);background:var(--surface)}
+.sa-in:focus-within{box-shadow:inset 0 0 0 2px var(--accent)}
+.sa-in span{display:grid;place-items:center;padding:0 2px 0 12px;font:600 1rem/1 var(--f-mono);color:var(--muted)}
+.sa-in input{box-shadow:none!important;background:transparent!important;padding-left:4px!important}
+.lbl-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mic{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:6px 12px;background:var(--surface-2);color:var(--ink);font:600 .85rem/1 var(--f-body)}
+.mic svg{width:16px;height:16px}
+.mic.on{background:var(--warn-bg);color:var(--warn)}
+.mic.on svg{animation:micpulse 1s ease-in-out infinite}
+@keyframes micpulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.mic.on svg{animation:none}}
+.scan-auto{display:flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:6px 12px;background:rgba(255,255,255,.16);color:#fff;font:600 .82rem/1 var(--f-body)}
+.scan-auto[aria-pressed="true"]{background:#58C774;color:#06301A}
+.seal{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+.seal.ok b{color:var(--in)} .seal.bad b{color:var(--warn)}
+.seal svg{width:16px;height:16px;flex:none}
+.chk-list{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.chk-list li{font-size:.88rem;border-left:3px solid var(--warn);padding:4px 0 4px 10px}
 
 main{max-width:640px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
 .panel{display:flex;flex-direction:column;gap:14px}
@@ -226,6 +248,11 @@ dl.kv a{color:var(--brand-2);font-weight:600}
 .spinner{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--brand-2);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+.upd{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:90;width:min(608px,calc(100% - 32px));background:var(--brand);color:var(--brand-ink);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.upd-txt{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.upd-txt span{font-size:.86rem;opacity:.85}
+.upd-btns{display:flex;gap:8px;margin-left:auto}
+.upd .btn.ghost{color:var(--brand-ink)}
 .toast{pointer-events:none;z-index:95!important;border-radius:14px!important;text-align:center;position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:600;font-size:.9rem;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 @media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}}
 @media (max-width:380px){.qa{font-size:.75rem}.seg button{font-size:.75rem}}
@@ -376,6 +403,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
     </div>
     <span class="mode" id="mode">No backup yet</span>
   </div>
+  <div class="netbar" id="netBar" hidden><div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M3 3l18 18"/></svg><span id="netTxt">Offline</span></div></div>
 </header>
 
 <main>
@@ -411,8 +439,9 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
     </div>
     <form class="card" id="logForm" novalidate>
       <div class="field" id="accountBlock" hidden>
-        <label for="accountIn">Customer Account Number</label>
-        <input type="text" id="accountIn" inputmode="numeric" autocomplete="off" placeholder="Account deployed at" class="mono">
+        <label for="accountIn">SA Number</label>
+        <div class="sa-in"><span aria-hidden="true">SA-</span><input type="text" id="accountIn" inputmode="numeric" autocomplete="off" placeholder="1234567" class="mono" aria-describedby="saEx"></div>
+        <small class="ex" id="saEx">The service appointment number from the work order, e.g. SA-1234567</small>
       </div>
       <div class="field" id="fromBlock" hidden>
         <label for="fromSel">Received From</label>
@@ -485,8 +514,9 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <div id="qtyWarn"></div>
       </div>
       <div class="field">
-        <label for="noteIn">Note <span class="muted">(Optional)</span></label>
-        <textarea id="noteIn" placeholder="Work order, fault, condition…"></textarea>
+        <div class="lbl-row"><label for="noteIn">Note <span class="muted">(Optional)</span></label>
+          <button type="button" class="mic" id="micBtn" hidden aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="micLbl">Speak</span></button></div>
+        <textarea id="noteIn" placeholder="Fault, condition, where it's installed…"></textarea>
       </div>
       <div class="loc" id="locLine"><span class="dot" id="locDot"></span><span id="locTxt">Location not checked yet</span>
         <button type="button" class="btn ghost" id="locRetry" hidden>Retry</button></div>
@@ -580,12 +610,18 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
       <p class="help" id="gsText"></p>
       <div class="gs-btns" id="gsBtns"></div>
     </div>
+    <div class="card" id="chkCard">
+      <div class="cmp-head"><h3>History Check</h3><span class="pill t-count" id="chkPill">Checking</span></div>
+      <p class="help" id="chkText"></p>
+      <div id="chkBody"></div>
+    </div>
     <div class="card">
       <h3>Export to Excel</h3>
       <p class="help">Save a copy of your history and what's on hand for your own records.</p>
       <button class="btn block" type="button" data-backup>Export to Excel</button>
     </div>
     <div class="note info" id="homeTip"></div>
+    <p class="help" id="appVer" style="text-align:center"></p>
   </section>
 
   <!-- MANUAL ORDER -->
@@ -644,7 +680,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 <div class="scanner" id="liveScanner" hidden role="dialog" aria-modal="true" aria-label="Count scanner">
   <video id="liveVideo" playsinline muted autoplay></video>
   <div class="aim" id="aim"></div>
-  <div class="scan-top"><b id="liveTitle">Counting</b><span class="scan-n" id="liveN">0</span></div>
+  <div class="scan-top"><b id="liveTitle">Counting</b><button type="button" class="scan-auto" id="liveAuto" aria-pressed="false" hidden>Continuous</button><span class="scan-n" id="liveN">0</span></div>
   <div class="scan-bot">
     <div class="scan-hint" id="liveHint">Pinch to zoom.</div>
     <div class="zoom-row" id="zoomRow" aria-label="Camera zoom">
@@ -685,6 +721,10 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 </div>
 </div>
 
+<div class="upd" id="updBar" hidden role="status" aria-live="polite">
+  <div class="upd-txt"><b>Update available</b><span id="updNote">A new version of Stock Tracker is ready.</span></div>
+  <div class="upd-btns"><button class="btn sm ghost" type="button" id="updLater">Later</button><button class="btn sm primary" type="button" id="updGo">Update Now</button></div>
+</div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
@@ -835,6 +875,61 @@ const newId=()=>"e"+Date.now().toString(36)+Math.random().toString(36).slice(2,1
 const K = {deleted:"techstock.deleted", events:"techstock.events", me:"techstock.me", backup:"techstock.lastBackup", backupIds:"techstock.backupCount"};
 function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+/* SHA-256 of a text string, hex. Small and synchronous so every entry can be sealed as it's saved. */
+const sha256=(()=>{
+  const K=new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const enc=new TextEncoder(), W=new Uint32Array(64);
+  return str=>{
+    const m=enc.encode(String(str)), l=m.length, n=((l+9+63)>>6)<<6, b=new Uint8Array(n);
+    b.set(m); b[l]=0x80; const dv=new DataView(b.buffer);
+    dv.setUint32(n-8, Math.floor(l/0x20000000)); dv.setUint32(n-4, (l<<3)>>>0);
+    let h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a,h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+    const r=(x,k)=>(x>>>k)|(x<<(32-k));
+    for(let o=0;o<n;o+=64){
+      for(let i=0;i<16;i++) W[i]=dv.getUint32(o+i*4);
+      for(let i=16;i<64;i++){ const a=W[i-15], c=W[i-2]; W[i]=(W[i-16]+(r(a,7)^r(a,18)^(a>>>3))+W[i-7]+(r(c,17)^r(c,19)^(c>>>10)))>>>0; }
+      let a=h0,bb=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+      for(let i=0;i<64;i++){
+        const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+W[i])>>>0, t2=((r(a,2)^r(a,13)^r(a,22))+((a&bb)^(a&c)^(bb&c)))>>>0;
+        h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=bb; bb=a; a=(t1+t2)>>>0;
+      }
+      h0=(h0+a)>>>0; h1=(h1+bb)>>>0; h2=(h2+c)>>>0; h3=(h3+d)>>>0; h4=(h4+e)>>>0; h5=(h5+f)>>>0; h6=(h6+g)>>>0; h7=(h7+h)>>>0;
+    }
+    return [h0,h1,h2,h3,h4,h5,h6,h7].map(x=>x.toString(16).padStart(8,"0")).join("");
+  };
+})();
+
+/* ---------- tamper-evident history ----------
+   Every entry is sealed when it's saved: numbered in order, and fingerprinted (SHA-256) together
+   with the fingerprint of the entry before it. Changing, removing or reordering any entry later
+   breaks the chain, and the History Check on the Admin tab shows where. Voiding and deleting are
+   allowed, but each gets its own fingerprint, so they can't be quietly undone either. */
+const SEAL_FIELDS=["id","seq","type","ts","sku","serial","qty","account","sa","toTech","from","rma","tracking","note","lat","lng","jobId","prev"];
+const sealText=e=>JSON.stringify(SEAL_FIELDS.map(f=>e[f]==null?"":String(e[f])));
+const voidText=e=>JSON.stringify([e.hash||"", e.voided?"1":"", e.voidedAt==null?"":String(e.voidedAt), e.voidReason||"", e.deleted?"1":""]);
+function topSeal(list){ let t=null; list.forEach(e=>{ if(e.seq && (!t || e.seq>t.seq)) t=e; }); return t; }
+function sealEntry(e, list){ const t=topSeal(list); e.seq=(t?t.seq:0)+1; e.prev=t?t.hash:"start"; e.hash=sha256(sealText(e)); }
+function sealVoid(e){ e.vhash=sha256(voidText(e)); }
+/* entries saved before sealing existed (or brought back from an older sheet) are sealed oldest first */
+function sealMissing(list){
+  const todo=list.filter(e=>!e.seq).sort((a,b)=>a.ts-b.ts);
+  todo.forEach(e=>{ sealEntry(e, list); if(e.voided) sealVoid(e); });
+  if(todo.length && !lsGet("techstock.sealStart",null)) lsSet("techstock.sealStart", Date.now());
+  return todo.length;
+}
+function checkHistory(){
+  const ev=Store.events.filter(e=>e.seq).sort((a,b)=>a.seq-b.seq);
+  const issues=[]; let prev="start", expect=1;
+  for(const e of ev){
+    if(e.seq>expect) issues.push({kind:"gap", from:expect, to:e.seq-1});
+    if(e.seq<expect) issues.push({kind:"dup", e});
+    else if(e.prev!==prev) issues.push({kind:"link", e});
+    if(sha256(sealText(e))!==e.hash) issues.push({kind:"changed", e});
+    if((e.voided || e.vhash) && sha256(voidText(e))!==e.vhash) issues.push({kind:"void", e});
+    prev=e.hash; expect=Math.max(expect, e.seq+1);
+  }
+  return {count:ev.length, issues, bad:new Set(issues.filter(i=>i.e).map(i=>i.e.id))};
+}
 const Store = {
   events: lsGet(K.events, []),
   persist(){
@@ -842,21 +937,22 @@ const Store = {
     onDataChanged();
     return true;
   },
-  add(ev){ ev.id=newId(); this.events.push(ev); this.events.sort((a,b)=>b.ts-a.ts); return this.persist(); },
+  add(ev){ ev.id=newId(); sealEntry(ev, this.events); this.events.push(ev); this.events.sort((a,b)=>b.ts-a.ts); return this.persist(); },
   voidEvent(id, reason){
-    const e=this.events.find(x=>x.id===id); if(!e) return false;
-    Object.assign(e,{voided:true, voidReason:reason||"", voidedAt:Date.now()}); return this.persist();
+    const e=this.events.find(x=>x.id===id); if(!e || e.voided) return false;
+    Object.assign(e,{voided:true, voidReason:reason||"", voidedAt:Date.now()}); sealVoid(e); return this.persist();
   },
-  /* Delete for good. The id is remembered so restoring an older backup on this phone can't bring it back. */
+  /* Deleting hides an entry from your stock and history, but keeps a sealed record that it was deleted and why. */
   deleted: new Set(lsGet(K.deleted, [])),
-  deleteEvent(id){
-    const i=this.events.findIndex(x=>x.id===id); if(i<0) return false;
-    this.events.splice(i,1); this.deleted.add(id);
-    lsSet(K.deleted, [...this.deleted]); return this.persist();
+  deleteEvent(id, reason){
+    const e=this.events.find(x=>x.id===id); if(!e) return false;
+    Object.assign(e,{voided:true, deleted:true, voidReason:reason||e.voidReason||"", voidedAt:e.voidedAt||Date.now()}); sealVoid(e);
+    return this.persist();
   }
 };
 Store.events.sort((a,b)=>b.ts-a.ts);
-Store.events.forEach(e=>{ if(LEGACY_SKU[e.sku]){ e.sku=LEGACY_SKU[e.sku]; e.skuName=SKU[e.sku].name; } });
+Store.events.forEach(e=>{ if(LEGACY_SKU[e.sku] && !e.seq){ e.sku=LEGACY_SKU[e.sku]; e.skuName=SKU[e.sku].name; } });
+if(sealMissing(Store.events)) lsSet(K.events, Store.events);
 // Ask the browser to keep this site's data (iPhone honours this best from the Home Screen)
 try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 
@@ -993,7 +1089,7 @@ function lineBlock(v){
   if(multi()){
     if(F.lines.some(l=>l.serial && keyOf(l.serial)===k)) return "Already on this list";
     if(F.type==="receive"){ const rec=STOCK.serials.get(k); if(rec && rec.inStock) return "Already in your stock"; }
-  } else if(F.jobId && Store.events.some(e=>e.jobId===F.jobId && !e.voided && e.serialKey===k)) return "Already deployed to this account";
+  } else if(F.jobId && Store.events.some(e=>e.jobId===F.jobId && !e.voided && e.serialKey===k)) return "Already deployed on this SA";
   return "";
 }
 function deployAddSerial(v, quiet){
@@ -1057,16 +1153,20 @@ $("dSerialIn").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDef
 $("dScanBtn").addEventListener("click",()=>startLiveScan("log"));
 $("dPhotoBtn").addEventListener("click",()=>{ photoTarget="log"; $("camInput").value=""; $("camInput").click(); });
 
-/* items already deployed to this account, so the tech can see the job build up */
+/* items already deployed on this SA, so the tech can see the job build up */
 F.jobId=null; F.jobAcct="";
+/* SA number: typed as digits, saved as SA-1234567 */
+const saDigits=v=>String(v||"").replace(/^\s*SA\s*-?/i,"").replace(/\D/g,"");
+const saOf=v=>{ const d=saDigits(v); return d ? "SA-"+d : ""; };
 function renderJob(){
   const box=$("jobList"); if(!box) return;
   if(F.type!=="deploy"){ box.innerHTML=""; return; }
-  const acct=$("accountIn").value.trim();
-  const done=F.jobId && keyOf(acct)===keyOf(F.jobAcct) ? Store.events.filter(e=>e.jobId===F.jobId && !e.voided).sort((a,b)=>a.ts-b.ts) : [];
+  const acct=saOf($("accountIn").value);
+  const done=F.jobId && acct===F.jobAcct ? Store.events.filter(e=>e.jobId===F.jobId && !e.voided).sort((a,b)=>a.ts-b.ts) : [];
   box.innerHTML = done.length ? `<div class="note info"><b>Deployed to ${esc(F.jobAcct)}</b><br>${done.map(e=>esc((SKU[e.sku]&&SKU[e.sku].name)||e.skuName)+(e.serial?` <span class="mono">${esc(e.serial)}</span>`:e.qty>1?` × ${esc(e.qty)}`:"")).join("<br>")}</div>` : "";
 }
-$("accountIn").addEventListener("input",()=>{ if(keyOf($("accountIn").value)!==keyOf(F.jobAcct)){ F.jobId=null; F.jobAcct=""; } renderJob(); });
+$("accountIn").addEventListener("input",()=>{ const el=$("accountIn"), d=saDigits(el.value); if(el.value!==d) el.value=d;
+  if(saOf(d)!==F.jobAcct){ F.jobId=null; F.jobAcct=""; } renderJob(); });
 
 function openLog(type, sku, serial){
   setType(type||"deploy");
@@ -1221,15 +1321,16 @@ async function saveDeploy(){
   const err=m=>{ $("formErr").innerHTML=`<div class="note warn">${esc(m)}</div>`; };
   $("formErr").innerHTML="";
   const typed=$("dSerialIn").value.trim(); if(typed && deployAddSerial(typed)) $("dSerialIn").value="";
-  const account=$("accountIn").value.trim();
-  if(!account){ $("accountIn").focus(); return err("Enter the customer account number."); }
+  const sa=saOf($("accountIn").value), sad=saDigits(sa);
+  if(!sad){ $("accountIn").focus(); return err("Enter the SA number from the work order."); }
+  if(sad.length<4 || sad.length>12){ $("accountIn").focus(); return err("That SA number doesn't look right. It's the number after SA-, e.g. SA-1234567."); }
   if(!F.lines.length) return err("Scan or pick the item you're deploying.");
   const unknown=F.lines.find(l=>!SKU[l.sku]); if(unknown) return err(`Pick the item for ${unknown.serial}.`);
   saving=true; $("saveBtn").disabled=true; $("saveBtn").textContent="Saving…";
   if(LOC.status!=="ok" || Date.now()-LOC.at>5*60000) await refreshLocation(true);
-  if(!F.jobId || keyOf(F.jobAcct)!==keyOf(account)){ F.jobId=newId(); F.jobAcct=account; }
+  if(!F.jobId || F.jobAcct!==sa){ F.jobId=newId(); F.jobAcct=sa; }
   const jobId=F.jobId, ts=Date.now();
-  const base={type:"deploy", ts, jobId, account, accountKey:keyOf(account), toTech:"", from:"", rma:"", note:$("noteIn").value.trim(),
+  const base={type:"deploy", ts, jobId, sa, account:"", accountKey:"", toTech:"", from:"", rma:"", note:$("noteIn").value.trim(),
     lat:LOC.status==="ok"?LOC.lat:null, lng:LOC.status==="ok"?LOC.lng:null, acc:LOC.status==="ok"?LOC.acc:null, voided:false};
   let ok=true;
   F.lines.forEach(l=>{ const s=SKU[l.sku];
@@ -1477,7 +1578,8 @@ $("histQ").addEventListener("input",renderHistory);
 function evLine(e){
   const s=SKU[e.sku]; const name=(s&&s.name)||e.skuName||"Item";
   const what = e.serial ? `<span class="mono">${esc(e.serial)}</span>` : `Qty ${esc(e.qty)}`;
-  const where = e.type==="deploy"&&e.account ? ` · Acct <span class="mono">${esc(e.account)}</span>` :
+  const where = e.type==="deploy"&&e.sa ? ` · <span class="mono">${esc(e.sa)}</span>` :
+                e.type==="deploy"&&e.account ? ` · Acct <span class="mono">${esc(e.account)}</span>` :
                 e.type==="transfer"&&e.toTech ? ` · To ${esc(e.toTech)}` :
                 e.type==="receive"&&e.from ? ` · From ${esc(e.from)}${e.account?` · Acct <span class="mono">${esc(e.account)}</span>`:""}` :
                 e.type==="rma"&&e.rma ? ` · RMA <span class="mono">${esc(e.rma)}</span>` : "";
@@ -1485,18 +1587,18 @@ function evLine(e){
 }
 function renderHistory(){
   const q=$("histQ").value.trim().toLowerCase(), qk=keyOf(q);
-  const rows=Store.events.filter(e=>(histF==="all"||e.type===histF) && (!q ||
-    (e.serialKey||"").includes(qk) || (e.accountKey||"").includes(qk) ||
+  const rows=Store.events.filter(e=>(histF==="deleted" ? e.deleted : !e.deleted && (histF==="all"||e.type===histF)) && (!q ||
+    (e.serialKey||"").includes(qk) || (e.accountKey||"").includes(qk) || keyOf(e.sa).includes(qk) ||
     [e.skuName,e.note,e.toTech,e.from,e.rma].some(v=>String(v||"").toLowerCase().includes(q))));
   const list=$("histList");
-  if(!Store.events.length){ list.innerHTML=`<div class="empty"><h3>No history yet</h3><p>Every item you receive, deploy, transfer, send on RMA or recycle is listed here with the date, time and GPS location.</p><button class="btn primary" data-quick="receive">Receive Items</button></div>`; return; }
+  if(!Store.events.length && histF!=="deleted"){ list.innerHTML=`<div class="empty"><h3>No history yet</h3><p>Every item you receive, deploy, transfer, send on RMA or recycle is listed here with the date, time and GPS location.</p><button class="btn primary" data-quick="receive">Receive Items</button></div>`; return; }
   if(!rows.length){ list.innerHTML=`<div class="empty"><p>No entries match. Try a shorter search or another filter.</p></div>`; return; }
   let html="", last="";
   rows.slice(0,500).forEach(e=>{
     const d=dayLabel(e.ts); if(d!==last){ html+=`<div class="day">${esc(d)}</div>`; last=d; }
     const l=evLine(e), T=TYPES[e.type]||{label:e.type};
     html+=`<button class="ev t-${esc(e.type)} ${e.voided?"voided":""}" data-ev="${esc(e.id)}"><div class="ev-main"><span class="ev-title">${esc(l.name)}</span><span class="ev-sub">${l.sub}</span></div>
-      <div class="ev-side"><span class="pill">${e.voided?"Voided":esc(T.label)}</span><span class="num">${fmtTime(e.ts)}</span></div></button>`;
+      <div class="ev-side"><span class="pill">${e.deleted?"Deleted":e.voided?"Voided":esc(T.label)}</span><span class="num">${fmtTime(e.ts)}</span></div></button>`;
   });
   list.innerHTML=html;
 }
@@ -1510,10 +1612,12 @@ function openDetail(id){
   const map = e.lat!=null ? `<a href="https://www.google.com/maps?q=${e.lat},${e.lng}" target="_blank" rel="noopener">${e.lat}, ${e.lng}</a>` : `<span class="muted">Not captured</span>`;
   $("detailBody").innerHTML=`
     <div class="sheet-head"><h2 id="detailH">${esc(l.name)}</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>
-    <div class="t-${esc(e.type)}"><span class="pill">${e.voided?"Voided":esc(T.label)}</span></div>
+    <div class="t-${esc(e.type)}"><span class="pill">${e.deleted?"Deleted":e.voided?"Voided":esc(T.label)}</span></div>
+    ${sealLine(e)}
     <dl class="kv">
       ${e.serial?`<dt>Serial</dt><dd class="mono">${esc(e.serial)}</dd>`:`<dt>Quantity</dt><dd>${esc(e.qty)}</dd>`}
       <dt>When</dt><dd>${esc(fmtFull(e.ts))}</dd>
+      ${e.sa?`<dt>SA Number</dt><dd class="mono">${esc(e.sa)}</dd>`:""}
       ${e.account?`<dt>Account</dt><dd class="mono">${esc(e.account)}</dd>`:""}
       ${e.toTech?`<dt>Transferred To</dt><dd>${esc(e.toTech)}</dd>`:""}
       ${e.from?`<dt>Received From</dt><dd>${esc(e.from)}</dd>`:""}
@@ -1523,21 +1627,25 @@ function openDetail(id){
           return mates.length ? `<dt>Installed With</dt><dd>${mates.map(x=>esc((SKU[x.sku]&&SKU[x.sku].name)||x.skuName)+(x.serial?` <span class="mono">${esc(x.serial)}</span>`:x.qty>1?` × ${esc(x.qty)}`:"")).join("<br>")}</dd>` : ""; })() : ""}
       <dt>GPS</dt><dd>${map}</dd>
       ${e.note?`<dt>Note</dt><dd>${esc(e.note)}</dd>`:""}
-      ${e.voided?`<dt>Voided</dt><dd>${e.voidedAt?esc(fmtFull(e.voidedAt)):"Yes"}${e.voidReason?" · "+esc(e.voidReason):""}</dd>`:""}
+      ${e.voided?`<dt>${e.deleted?"Deleted":"Voided"}</dt><dd>${e.voidedAt?esc(fmtFull(e.voidedAt)):"Yes"}${e.voidReason?" · "+esc(e.voidReason):""}</dd>`:""}
     </dl>
     ${e.type==="transfer" && e.jobId && !e.voided ? `<button class="btn brand block" type="button" id="mailAgain">Draft Transfer Email</button>`:""}
     <div id="voidArea">${!e.voided ? `<button class="btn danger block" id="voidStart" type="button">Void This Entry</button>`:""}
-      <button class="btn ghost block" id="delStart" type="button" style="color:var(--warn)">Delete Entry</button></div>`;
+      ${!e.deleted?`<button class="btn ghost block" id="delStart" type="button" style="color:var(--warn)">Delete Entry</button>`:""}</div>`;
   $("detailSheet").hidden=false;
   if($("mailAgain")) $("mailAgain").addEventListener("click",()=>openTransferMail(e.jobId));
-  $("delStart").addEventListener("click",()=>{
+  if($("delStart")) $("delStart").addEventListener("click",()=>{
     const what = e.serial ? `serial ${e.serial}` : `${e.qty} × ${l.name}`;
-    $("voidArea").innerHTML=`<div class="card" role="alertdialog" aria-labelledby="delQ"><b id="delQ">Delete this entry for good?</b>
+    $("voidArea").innerHTML=`<div class="card" role="alertdialog" aria-labelledby="delQ"><b id="delQ">Delete this entry?</b>
       <p class="help" style="color:var(--ink)">${esc((TYPES[e.type]||{label:e.type}).label)} · ${esc(what)} · ${esc(fmtFull(e.ts))}</p>
-      <p class="help">It's removed from your stock and history and won't be in future backups. This can't be undone. If you might need proof of it later, void it instead.</p>
-      <div class="row"><button class="btn block" type="button" data-close="detailSheet">Cancel</button><button class="btn danger block" type="button" id="delGo">Delete Permanently</button></div></div>`;
+      <div class="field"><label for="delReason">Reason for Deleting</label><input type="text" id="delReason" placeholder="Test entry, logged twice…" autocomplete="off"></div>
+      <p class="help">It's removed from your stock and history. A sealed record that it was deleted, when and why stays in your Google Sheet, so your history can still be checked.</p>
+      <div id="delErr"></div>
+      <div class="row"><button class="btn block" type="button" data-close="detailSheet">Cancel</button><button class="btn danger block" type="button" id="delGo">Delete Entry</button></div></div>`;
     $("delGo").addEventListener("click",()=>{
-      if(Store.deleteEvent(e.id)){ $("detailSheet").hidden=true; toast("Entry deleted"); renderAll(); }
+      const why=$("delReason").value.trim();
+      if(!why){ $("delErr").innerHTML=`<div class="note warn">Type a reason for deleting it.</div>`; $("delReason").focus(); return; }
+      if(Store.deleteEvent(e.id, why)){ $("detailSheet").hidden=true; toast("Entry deleted"); renderAll(); }
     });
   });
   const vs=$("voidStart");
@@ -1553,6 +1661,72 @@ function openDetail(id){
 }
 document.addEventListener("click",e=>{ const c=e.target.closest("[data-close]"); if(c) $(c.dataset.close).hidden=true; });
 document.querySelectorAll(".sheet").forEach(s=>s.addEventListener("click",e=>{ if(e.target===s) s.hidden=true; }));
+
+/* ---------- History Check (Admin) ---------- */
+const ICON_OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>';
+const ICON_BAD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M12 8v5M12 16.5v.01"/></svg>';
+let CHK=null;
+function sealLine(e){
+  if(!e.seq) return "";
+  const bad=CHK && CHK.bad.has(e.id);
+  return `<div class="seal ${bad?"bad":"ok"}">${bad?ICON_BAD:ICON_OK}<span><b>${bad?"Changed after it was logged":"Sealed"}</b> · Entry #${e.seq} · <span class="mono">${esc(String(e.hash||"").slice(0,12))}</span></span></div>`;
+}
+function issueText(i){
+  const name=e=>`#${e.seq} (${(TYPES[e.type]||{label:e.type}).label} ${e.serial||((SKU[e.sku]&&SKU[e.sku].name)||e.skuName||"")}, ${fmtDate(e.ts)})`;
+  if(i.kind==="gap") return i.from===i.to ? `Entry #${i.from} is missing.` : `Entries #${i.from} to #${i.to} are missing.`;
+  if(i.kind==="changed") return `Entry ${name(i.e)} was changed after it was logged.`;
+  if(i.kind==="void") return `The void or delete on entry ${name(i.e)} was changed or undone.`;
+  if(i.kind==="link") return `Entry ${name(i.e)} doesn't follow on from the entry before it.`;
+  if(i.kind==="dup") return `Entry ${name(i.e)} has the same number as another entry. This happens if entries were logged on two phones at once.`;
+  return "Problem found.";
+}
+function paintCheck(){
+  CHK=checkHistory();
+  const del=Store.events.filter(e=>e.deleted).length, since=lsGet("techstock.sealStart",null);
+  const n=CHK.issues.length;
+  $("chkPill").textContent = n ? "Problem" : "Verified";
+  $("chkPill").style.cssText = n ? "background:var(--warn-bg);color:var(--warn)" : "background:var(--in-bg);color:var(--in)";
+  $("chkText").innerHTML = !CHK.count ? "Every entry you log is sealed with a digital fingerprint linked to the one before it. If anything is changed or removed later, it shows up here."
+    : n ? `<b>${n} problem${n===1?"":"s"} found</b> in your ${CHK.count} sealed entries. These entries were changed, removed or reordered after they were logged.`
+        : `All ${CHK.count} entries are sealed and unchanged since they were logged.${del?` ${del} deleted entr${del===1?"y is":"ies are"} kept on record.`:""}`;
+  $("chkBody").innerHTML = (n?`<ul class="chk-list">${CHK.issues.slice(0,20).map(i=>`<li>${esc(issueText(i))}</li>`).join("")}${n>20?`<li>…and ${n-20} more</li>`:""}</ul>`:"")
+    + (since?`<p class="help" style="margin-top:8px">Entries logged before ${esc(fmtDate(since))} were sealed when this check was added.</p>`:"")
+    + (del?`<button class="btn sm" type="button" id="showDeleted" style="margin-top:10px">Show Deleted Entries</button>`:"");
+  const sd=$("showDeleted"); if(sd) sd.onclick=()=>{ histF="deleted"; setTab("history"); $("histChips").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false")); renderHistory(); toast("Showing deleted entries. Tap a filter to go back."); };
+}
+
+/* ---------- offline indicator ---------- */
+function unsyncedCount(){ const t=GS.lastSync||0; return Store.events.filter(e=>e.ts>t || (e.voidedAt||0)>t).length; }
+function paintNet(){
+  const off=!navigator.onLine, bar=$("netBar");
+  bar.hidden=!off;
+  if(off){
+    const n = GS.connected ? unsyncedCount() : 0;
+    $("netTxt").textContent = GS.connected && n ? `Offline. ${n} entr${n===1?"y":"ies"} saved on this phone, waiting to sync.` : "Offline. You can keep logging. Everything saves on this phone.";
+    $("mode").textContent="Offline"; $("mode").className="mode off";
+  }
+}
+window.addEventListener("online", ()=>setTimeout(()=>{ paintNet(); paintBackup(); },0));
+window.addEventListener("offline", paintNet);
+
+/* ---------- speak a note (the phone's own speech-to-text) ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let REC=null;
+if(SR) $("micBtn").hidden=false;
+function micStop(){ if(REC){ try{ REC.stop(); }catch(e){} } }
+$("micBtn").addEventListener("click",()=>{
+  if(REC){ micStop(); return; }
+  const ta=$("noteIn"), base=ta.value.replace(/\s+$/,""), r=new SR();
+  r.lang="en-CA"; r.continuous=true; r.interimResults=true;
+  let finalTxt="";
+  r.onresult=ev=>{ let interim=""; for(let i=ev.resultIndex;i<ev.results.length;i++){ const t=ev.results[i][0].transcript; if(ev.results[i].isFinal) finalTxt+=t; else interim+=t; }
+    const said=(finalTxt+interim).trim(); ta.value=(base&&said?base+" ":base)+(said?said.charAt(0).toUpperCase()+said.slice(1):""); };
+  r.onerror=ev=>{ if(ev.error==="not-allowed"||ev.error==="service-not-allowed") toast("Speech isn't allowed here. Use the microphone key on your keyboard instead.");
+    else if(ev.error==="network") toast("Speaking a note needs signal. Use the microphone key on your keyboard instead."); else if(ev.error!=="no-speech"&&ev.error!=="aborted") toast("Didn't catch that. Try again."); };
+  r.onend=()=>{ REC=null; $("micBtn").classList.remove("on"); $("micBtn").setAttribute("aria-pressed","false"); $("micLbl").textContent="Speak"; };
+  try{ r.start(); REC=r; $("micBtn").classList.add("on"); $("micBtn").setAttribute("aria-pressed","true"); $("micLbl").textContent="Stop"; }
+  catch(e){ toast("Couldn't start the microphone. Use the microphone key on your keyboard instead."); }
+});
 
 /* ---------- your details ---------- */
 /* ---------- your details (same fields on the setup screen and the Admin tab) ---------- */
@@ -1754,6 +1928,7 @@ const COLS = [
   ["Item",             e=>(SKU[e.sku]&&SKU[e.sku].name)||e.skuName||""],
   ["Serial",           e=>e.serial||""],
   ["Qty",              e=>Number(e.qty)||""],
+  ["SA number",        e=>e.sa||""],
   ["Customer account", e=>e.account||""],
   ["RMA number",       e=>e.rma||""],
   ["Transferred to",   e=>e.toTech||""],
@@ -1768,7 +1943,12 @@ const COLS = [
   ["Timestamp",        e=>new Date(e.ts).toISOString()],
   ["Voided at",        e=>e.voidedAt?new Date(e.voidedAt).toISOString():""],
   ["Job ID",           e=>e.jobId||""],
-  ["Tracking number",  e=>e.tracking||""]
+  ["Tracking number",  e=>e.tracking||""],
+  ["Deleted",          e=>e.deleted?"Yes":""],
+  ["Seq",              e=>e.seq||""],
+  ["Prev hash",        e=>e.prev||""],
+  ["Hash",             e=>e.hash||""],
+  ["Void hash",        e=>e.vhash||""]
 ];
 let DLP=null;
 function getDL(){ if(!DLP) DLP=(window.claude && typeof window.claude.use==="function") ? window.claude.use("downloads").catch(()=>null) : Promise.resolve(null); return DLP; }
@@ -1845,7 +2025,7 @@ function paintBackup(){
                                        : `<button class="btn sm brand" type="button" data-backup>Export</button>`;
   $("mode").textContent = !n ? "Nothing yet" : due ? "Not backed up" : "Exported";
   $("mode").className = "mode" + (due ? " due" : "");
-  paintGoogle();
+  paintGoogle(); if(!navigator.onLine) paintNet();
 }
 
 /* ---------- restore ---------- */
@@ -1864,8 +2044,9 @@ function rowsToEntries(rows){
     const type=TYPE_BY_LABEL[cellStr(r["Action"]).toLowerCase()];
     if(!id || !ts || !type) return;
     let sku=cellStr(r["Item code"]);
-    if(LEGACY_SKU[sku]) sku=LEGACY_SKU[sku];
-    if(!SKU[sku]){ const hit=SKUS.find(s=>s.name===cellStr(r["Item"])); sku=hit?hit.id:sku; }
+    const sealed=!!cellStr(r["Hash"]);
+    if(LEGACY_SKU[sku] && !sealed) sku=LEGACY_SKU[sku];
+    if(!SKU[sku] && !sealed){ const hit=SKUS.find(s=>s.name===cellStr(r["Item"])); sku=hit?hit.id:sku; }
     const serial=cellStr(r["Serial"]), account=cellStr(r["Customer account"]);
     const num=v=>{ const n=parseFloat(cellStr(v)); return isFinite(n)?n:null; };
     const va=Date.parse(cellStr(r["Voided at"]));
@@ -1873,7 +2054,10 @@ function rowsToEntries(rows){
       qty:Number(cellStr(r["Qty"]))||1, account, accountKey:keyOf(account), rma:cellStr(r["RMA number"]),
       toTech:cellStr(r["Transferred to"]), from:cellStr(r["Received from"]), note:cellStr(r["Note"]),
       lat:num(r["Latitude"]), lng:num(r["Longitude"]), acc:num(r["GPS accuracy (m)"]),
-      voided:cellStr(r["Voided"]).toLowerCase()==="yes", voidReason:cellStr(r["Void reason"]), voidedAt:isFinite(va)?va:null});
+      voided:cellStr(r["Voided"]).toLowerCase()==="yes", voidReason:cellStr(r["Void reason"]), voidedAt:isFinite(va)?va:null,
+      sa:cellStr(r["SA number"]), deleted:cellStr(r["Deleted"]).toLowerCase()==="yes",
+      seq:Number(cellStr(r["Seq"]))||0, prev:cellStr(r["Prev hash"]), hash:cellStr(r["Hash"]), vhash:cellStr(r["Void hash"])});
+    const last=out[out.length-1]; if(!last.seq){ delete last.seq; delete last.prev; delete last.hash; delete last.vhash; }
   });
   return {entries:out, skipped:rows.length-out.length};
 }
@@ -1885,8 +2069,12 @@ function mergeEntries(entries){
     if(Store.deleted.has(e.id)){ gone++; return; }
     const have=byId.get(e.id);
     if(!have){ Store.events.push(e); byId.set(e.id,e); added++; }
-    else if(e.voided && !have.voided){ Object.assign(have,{voided:true, voidReason:e.voidReason, voidedAt:e.voidedAt}); updated++; }
+    else{
+      if(e.voided && !have.voided){ Object.assign(have,{voided:true, voidReason:e.voidReason, voidedAt:e.voidedAt, deleted:e.deleted, vhash:e.vhash}); updated++; }
+      else if(e.deleted && !have.deleted){ Object.assign(have,{deleted:true, voidReason:e.voidReason, voidedAt:e.voidedAt, vhash:e.vhash}); updated++; }
+    }
   });
+  if(sealMissing(Store.events)) updated++;
   if(added || updated){
     Store.events.sort((a,b)=>b.ts-a.ts);
     if(!Store.persist()) throw new Error("This phone is out of space for Stock Tracker data.");
@@ -1930,7 +2118,7 @@ function recordNote(key){
   if(!evs.length){ const g=guessSku(key); return {text:"No record on this phone", item:g?guessLabel(g):""}; }
   const e=evs[0]; const item=(SKU[e.sku]&&SKU[e.sku].name)||e.skuName||"";
   const T=(TYPES[e.type]||{label:e.type}).label;
-  const extra = e.account?` · Acct ${e.account}` : e.toTech?` · To ${e.toTech}` : e.rma?` · RMA ${e.rma}` : e.from?` · From ${e.from}` : "";
+  const extra = e.sa?` · ${e.sa}` : e.account?` · Acct ${e.account}` : e.toTech?` · To ${e.toTech}` : e.rma?` · RMA ${e.rma}` : e.from?` · From ${e.from}` : "";
   return {text:`${T} ${fmtDate(e.ts)}${extra}`, item, type:e.type};
 }
 
@@ -2351,10 +2539,43 @@ async function startLiveScan(mode){
   const v=$("liveVideo"); v.srcObject=LIVE.stream;
   $("liveTitle").textContent = LIVE.mode==="log" ? TYPES[F.type].title : "Counting";
   $("liveHint").textContent = LIVE.mode==="log" && F.type==="deploy" ? "Scan the item you're deploying. Pinch to zoom." : LIVE.mode==="log" ? "Scan and accept each unit, then tap Done. Pinch to zoom." : "Pinch to zoom. Scan and accept each unit, then tap Done.";
+  const canAuto = LIVE.mode==="log" && F.type==="receive";
+  $("liveAuto").hidden=!canAuto; LIVE.auto = canAuto && lsGet("techstock.autoscan", true)!==false; paintAuto();
   $("liveScanner").hidden=false;
   try{ await v.play(); }catch(e){}
   setupZoom();
-  showScanRow(`<small>Put the red line on the serial barcode, then tap Scan.</small>`);
+  if(LIVE.auto) autoStart(); else showScanRow(`<small>Put the red line on the serial barcode, then tap Scan.</small>`);
+}
+/* Continuous mode (Receive): every new barcode under the red line is added on its own, with a beep.
+   The same barcode is ignored while it stays in view, so a box of units can be scanned one after another. */
+function paintAuto(){ const b=$("liveAuto"); b.setAttribute("aria-pressed", LIVE.auto?"true":"false"); b.textContent = LIVE.auto ? "Continuous: On" : "Continuous: Off";
+  $("liveShoot").textContent = LIVE.auto ? (LIVE.autoRun?"Pause":"Resume") : "Scan";
+  $("liveHint").textContent = LIVE.auto ? "Move the red line across each serial barcode. Each new one is added automatically. Pinch to zoom." : (LIVE.mode==="log" ? "Scan and accept each unit, then tap Done. Pinch to zoom." : $("liveHint").textContent); }
+$("liveAuto").addEventListener("click",()=>{ LIVE.auto=!LIVE.auto; lsSet("techstock.autoscan", LIVE.auto); if(LIVE.auto) autoStart(); else { LIVE.autoRun=false; showScanRow(`<small>Put the red line on the serial barcode, then tap Scan.</small>`); } paintAuto(); });
+async function autoStart(){
+  if(LIVE.autoRun) return; LIVE.autoRun=true; showScanRow(null); paintAuto();
+  $("liveLast").innerHTML=`<small>Scanning. Point the red line at a serial barcode.</small>`;
+  const seen=new Map();
+  while(LIVE.autoRun && LIVE.stream && LIVE.auto){
+    const text=await readAim();
+    if(text){
+      const k=keyOf(text), last=seen.get(k)||0;
+      if(Date.now()-last>2500){
+        seen.set(k, Date.now());
+        const why=lineBlock(text);
+        if(why==="Already on this list"){ /* still in view, ignore quietly */ }
+        else if(why){ beep(false); liveFlash("dup"); $("liveLast").innerHTML=`<span class="mono">${esc(text)}</span><small class="warn">${esc(why)}</small>`; }
+        else if(deployAddSerial(text,true)){
+          beep(true); liveFlash("hit");
+          const l=F.lines[F.lines.length-1], s=l&&SKU[l.sku];
+          $("liveLast").innerHTML=`<small>Added</small><span class="mono">${esc(text)}</span><small>${esc(s?s.name:l&&l.pick?"Pick the model after":"Pick the item after")}</small>`;
+          paintLiveCount(); await sleep(700);
+        }
+      }
+    }
+    await sleep(120);
+  }
+  LIVE.autoRun=false; if(LIVE.stream) paintAuto();
 }
 
 /* read whatever barcode is under the red line right now (one frame) */
@@ -2380,7 +2601,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 function showScanRow(msg){
   LIVE.pending=null;
-  $("liveConfirmRow").hidden=true; $("liveScanRow").hidden=false; $("liveShoot").disabled=false; $("liveShoot").textContent="Scan";
+  $("liveConfirmRow").hidden=true; $("liveScanRow").hidden=false; $("liveShoot").disabled=false; $("liveShoot").textContent=LIVE.auto?(LIVE.autoRun?"Pause":"Resume"):"Scan";
   $("liveLast").classList.remove("pending");
   if(msg!=null) $("liveLast").innerHTML=msg;
   paintLiveCount();
@@ -2388,6 +2609,7 @@ function showScanRow(msg){
 
 /* Scan button: try for up to 2 seconds to read the barcode under the line, then ask to accept */
 $("liveShoot").addEventListener("click",async()=>{
+  if(LIVE.auto){ if(LIVE.autoRun){ LIVE.autoRun=false; $("liveLast").innerHTML=`<small>Paused. Tap Resume to keep scanning.</small>`; paintAuto(); } else autoStart(); return; }
   if(LIVE.busy || !LIVE.stream) return; LIVE.busy=true;
   $("liveShoot").disabled=true; $("liveShoot").textContent="Reading…";
   $("liveLast").innerHTML=`<small>Hold steady…</small>`;
@@ -2449,7 +2671,7 @@ $("liveAccept").addEventListener("click",()=>{
   }
 });
 function stopLiveScan(){
-  LIVE.pending=null; LIVE.busy=false;
+  LIVE.pending=null; LIVE.busy=false; LIVE.autoRun=false;
   if(LIVE.stream){ LIVE.stream.getTracks().forEach(t=>t.stop()); LIVE.stream=null; }
   $("liveVideo").srcObject=null; $("liveVideo").style.transform=""; LIVE.hw=null; LIVE.pinch=null; $("liveScanner").hidden=true;
 }
@@ -2534,7 +2756,7 @@ async function gsSync(){
   try{
     await gsFindOrCreate();
     // 1. pull: bring back anything in the sheet that isn't on this phone (new phone, cleared data)
-    const got=await gapi(`${SHEETS}/${GS.sheetId}/values/${encodeURIComponent("History!A1:Z")}`);
+    const got=await gapi(`${SHEETS}/${GS.sheetId}/values/${encodeURIComponent("History!A1:AH")}?valueRenderOption=UNFORMATTED_VALUE`);
     const vals=(got&&got.values)||[];
     if(vals.length>1 && vals[0].includes("Entry ID")){
       const head=vals[0];
@@ -2548,7 +2770,7 @@ async function gsSync(){
     const onHand=onHandRows();
     await gapi(`${SHEETS}/${GS.sheetId}/values:batchUpdate`,{method:"POST", body:JSON.stringify({valueInputOption:"RAW",
       data:[{range:"History!A1", values:hist},{range:"'On hand'!A1", values:onHand}]})});
-    await gapi(`${SHEETS}/${GS.sheetId}/values:batchClear`,{method:"POST", body:JSON.stringify({ranges:[`History!A${hist.length+1}:Z`,`'On hand'!A${onHand.length+1}:Z`]})});
+    await gapi(`${SHEETS}/${GS.sheetId}/values:batchClear`,{method:"POST", body:JSON.stringify({ranges:[`History!A${hist.length+1}:AH`,`'On hand'!A${onHand.length+1}:Z`]})});
     GS.synced=Math.max(GS.synced,startRev); GS.lastSync=Date.now(); gsSave();
   }catch(e){
     gsErr = e.auth ? "auth" : (!navigator.onLine ? "offline" : (e.message||"unknown problem"));
@@ -2586,6 +2808,7 @@ function paintGoogle(){
     (GS.sheetId?`<a class="btn" href="https://docs.google.com/spreadsheets/d/${encodeURIComponent(GS.sheetId)}/edit" target="_blank" rel="noopener">Open Sheet</a>`:"")+
     `<button class="btn ghost" type="button" id="gsDisconnect">Switch Account</button>`;
   $("mode").textContent = st.pill; $("mode").className = "mode"+(st.warn?" due":"");
+  if(!navigator.onLine) paintNet();
   $("backupCard").hidden=true;
   banner.hidden=!st.warn; banner.classList.toggle("due", st.warn);
   $("gsBannerH").textContent = gsErr==="auth" ? "Google sign-in expired" : "Not in Google Sheets yet";
@@ -2641,12 +2864,38 @@ $("homeTip").hidden = standalone || !HELP.home;
 
 
 /* ---------- offline support ---------- */
-if("serviceWorker" in navigator && location.protocol==="https:"){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
+/* ---------- updates ----------
+   A new version downloads in the background. When it's ready, the app asks before switching,
+   so nothing in the middle of being logged is lost. */
+const SWOK="serviceWorker" in navigator && (location.protocol==="https:" || location.hostname==="localhost");
+let SWREG=null, updWanted=false;
+function showUpdate(){
+  if(!SWREG || !SWREG.waiting || !navigator.serviceWorker.controller) return;
+  const unsaved = (F.lines&&F.lines.length) || (F.serials&&F.serials.length);
+  $("updNote").textContent = unsaved ? "Save your log first. Items in the Logs form that aren't saved yet will be cleared." : "Takes a few seconds. Your entries stay on this phone.";
+  $("updBar").hidden=false;
 }
+if(SWOK){
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    SWREG=reg; showUpdate();
+    reg.addEventListener("updatefound",()=>{ const w=reg.installing; if(w) w.addEventListener("statechange",()=>{ if(w.state==="installed") showUpdate(); }); });
+    const check=()=>{ if(navigator.onLine) reg.update().catch(()=>{}); };
+    document.addEventListener("visibilitychange",()=>{ if(!document.hidden) check(); });
+    setInterval(check, 30*60000);
+  }).catch(()=>{});
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(updWanted) location.reload(); });
+  try{ caches.keys().then(k=>{ const v=k.find(x=>/^techstock-v\d+$/.test(x)); if(v) $("appVer").textContent="Stock Tracker version "+v.replace("techstock-v",""); }); }catch(e){}
+}
+$("updGo").addEventListener("click",()=>{
+  if(!SWREG || !SWREG.waiting){ location.reload(); return; }
+  updWanted=true; $("updGo").disabled=true; $("updGo").textContent="Updating…";
+  SWREG.waiting.postMessage("update");
+  setTimeout(()=>location.reload(), 4000);
+});
+$("updLater").addEventListener("click",()=>{ $("updBar").hidden=true; });
 
 /* ---------- boot ---------- */
-function renderAll(){ STOCK=computeStock(); renderStock(); renderHistory(); syncForm(); paintBackup(); renderCount(); }
+function renderAll(){ STOCK=computeStock(); renderStock(); renderHistory(); syncForm(); paintBackup(); renderCount(); paintCheck(); paintNet(); }
 paintHeader(); showSetup(); paintLoc(); setType("deploy"); renderAll();
 if(GS.connected && gsAvailable()){ if(gsTokenOk() && gsPending()) gsSync(); else if(!gsTokenOk()){ gsErr="auth"; paintGoogle(); } }
 setTab("log");

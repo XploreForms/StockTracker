@@ -12,7 +12,7 @@ Quarterly inventory counts come up about 5% short on equipment such as routers, 
 
 - **No server, no database.** Everything is saved on the tech's phone, in the browser's storage for this site.
 - **Google Sheets backup.** During setup each tech connects a Google account made with their @xplore.ca email. Every entry syncs to a spreadsheet in that tech's own Google Drive. On a new phone, connecting the same account brings everything back.
-- **Works offline.** Once the app has been opened once, it loads without signal. Entries made offline sync when the phone is back online.
+- **Works offline.** Once the app has been opened once, it loads without signal. An orange bar under the header shows when the phone is offline and how many entries are waiting to sync. They sync when the phone is back online.
 - **Install it like an app.** On iPhone, open the site in Safari and tap Share › Add to Home Screen. On Android, open it in Chrome and tap ⋮ › Add to Home screen or Install app.
 
 ## First-time setup (for techs)
@@ -27,19 +27,28 @@ Logs every movement of stock. Each entry records the date and time and, when the
 
 | Action | What it records |
 |---|---|
-| **Deploy** | One item at a time to a customer account. The account stays filled in so you can add the rest of the job (radio, router, drop, NID). |
-| **Receive** | Several items at once. Pick where they came from: Warehouse, Recovery (asks for the account), Transfer (asks for the dealer) or Other. |
+| **Deploy** | One item at a time against the work order's SA number. The tech types the digits and the app saves it as SA-1234567. The SA number stays filled in so you can add the rest of the job (radio, router, drop, NID). |
+| **Receive** | Several items at once. Pick where they came from: Warehouse, Recovery (asks for the account), Transfer (asks for the dealer) or Other. The scanner runs in **continuous mode**: move it across a box of units and each new serial is added with a beep. Repeats are ignored, and MAC barcodes or units already in stock are refused. Turn it off in the scanner to go back to Scan and Accept. |
 | **Transfer** | Items going to another dealer, handed over in person or shipped (with an optional tracking number). Drafts an email to xninventory@xplore.ca, which the tech must send. |
 | **RMA** | Items going back on RMA. An RMA number is required, and there's a link to the RMA Request Form. |
 | **Recycle** | Items being recycled. The tech confirms they checked the inventory system first. |
 
 Serials can be scanned with the camera, scanned from a photo, or typed. The app recognizes the item from the serial number in most cases. If you scan a MAC address barcode by mistake, it tells you to scan the serial instead.
 
+Notes can be typed or spoken: tap **Speak** next to the Note box and the phone turns speech into text. This uses the phone's own speech recognition, which usually needs signal. Offline, the microphone key on the keyboard may still work.
+
 ### Stock
 What's on hand right now: serialized units by item, plus quantities of non-serialized items. You can search it.
 
 ### History
-Every entry, newest first, with search. Tap an entry to see its details or delete it. Deleting asks you to confirm first, and the deletion also syncs to your Google Sheet.
+Every entry, newest first, with search. Tap an entry to see its details, void it or delete it. Both need a reason. Voided entries stay in the list, crossed out. Deleted entries are hidden from your stock and history, but a sealed record of the deletion stays in your Google Sheet. Admin › History Check › Show Deleted Entries lists them.
+
+#### Tamper-evident history
+Every entry is sealed when it's saved. It gets a number (#1, #2, #3…) and a SHA-256 fingerprint of its contents together with the fingerprint of the entry before it, so the entries form a chain. Voids and deletions get their own fingerprints too. Entry details show the seal.
+
+**Admin › History Check** re-checks the whole chain. It reports any entry that was changed after it was logged (on the phone or by editing the Google Sheet), entries that are missing, and voids or deletions that were undone. Entries logged before this feature existed were sealed, oldest first, the first time the updated app opened. The Sheet has **Seq**, **Prev hash**, **Hash** and **Void hash** columns for this.
+
+The check shows that the record hasn't been changed since it was logged. It can't prove that what was logged was true.
 
 ### Count
 For quarterly counts.
@@ -57,6 +66,7 @@ You can also count without a list, which compares your scans against your own re
 - **Your Details:** change your name, dealer, account numbers or shipping address.
 - **Appearance:** System, Light or Dark.
 - **Google Sheets:** sync status, Sync Now, Open Sheet, Switch Account.
+- **History Check:** verifies every sealed entry and lists any problems.
 - **Export to Excel:** a copy of your history and on-hand stock for your own reference.
 
 ### Manual Order Request
@@ -67,7 +77,7 @@ Replaces the Manual Inventory Order Jotform. Pick items and quantities (up to 20
 | File | Purpose |
 |---|---|
 | `index.html` | The whole app: HTML, CSS and JavaScript in one file. |
-| `sw.js` | Service worker. Caches the app so it opens offline. |
+| `sw.js` | Service worker. Caches the app so it opens offline, and holds new versions until the tech taps Update Now. |
 | `manifest.json` | Lets phones install the site as an app. |
 | `icon-192.png`, `icon-512.png`, `apple-touch-icon.png` | App icons. |
 | `privacy.html` | Privacy policy, linked from the app and required for Google sign-in. |
@@ -78,10 +88,14 @@ Outside libraries load from public CDNs and are cached for offline use: ZXing (b
 ## Updating the site
 
 1. Upload the changed files to the repo, replacing the old ones.
-2. **Bump the version in `sw.js`** (for example `techstock-v45` to `techstock-v46`) every time `index.html` changes. Phones then pick up the new version.
-3. GitHub Pages can take a few minutes to publish. Close and reopen the app to load the new version.
+2. **Bump the version in `sw.js`** (for example `techstock-v48` to `techstock-v49`) every time `index.html` changes. Without a new version number, phones won't see the update.
+3. GitHub Pages can take a few minutes to publish.
 
-To check which version is live, open `https://xploreforms.github.io/StockTracker/sw.js` and look at the `VERSION` line.
+**What techs see:** the app checks for a new version when it opens, when it comes back to the screen, and every 30 minutes. The new version downloads in the background, then an **Update available** banner appears with **Later** and **Update Now**. Nothing changes until the tech taps Update Now, so a log in progress isn't interrupted. If there are unsaved items in the Logs form, the banner tells them to save first. Tapping Later hides the banner until the next time the app opens. Fully closing and reopening the app also switches to the new version.
+
+The current version number is shown at the bottom of the Admin tab.
+
+To check which version is live on the site, open `https://xploreforms.github.io/StockTracker/sw.js` and look at the `VERSION` line. To check which version a phone is running, look at the bottom of its Admin tab.
 
 ## Google Sheets setup (Google Cloud)
 
@@ -107,7 +121,9 @@ Each tech's spreadsheet has two tabs: **History** (every entry) and **On hand** 
 | `techstock.events` | Every logged entry |
 | `techstock.me` | The tech's details |
 | `techstock.gs` | Google Sheets connection |
-| `techstock.deleted` | IDs of deleted entries, so deletions sync to Google Sheets |
+| `techstock.deleted` | IDs of entries deleted before deletions were kept on record |
+| `techstock.sealStart` | When existing entries were first sealed |
+| `techstock.autoscan` | Whether continuous scan is on |
 | `techstock.count` | Count in progress |
 | `techstock.order` | Manual order draft |
 | `techstock.manager` | Manager's email |
