@@ -1,12 +1,14 @@
-# Stock Tracker
+# Field Stock
 
 A mobile web app for field technicians to log every piece of equipment they receive, deploy, transfer, send on RMA or recycle. Each tech keeps their own record on their phone, backed up to their own Google Sheet. At quarterly counts, that record shows where every unit went.
 
 **Live site:** https://xploreforms.github.io/StockTracker/
 
+Field Stock was called Stock Tracker before it moved into Field Kit. Settings and data saved on phones still use the `techstock.` names, and Google Sheets are still found by their hidden `stockTracker` tag, so nothing is lost. Sheets titled "Stock Tracker - …" are renamed to "Field Stock - …" on their next sync.
+
 ## Why it exists
 
-Quarterly inventory counts come up about 5% short on equipment such as routers, fibre drops and wireless radios. Most of that loss comes from provisioning failures, not lost gear. Stock Tracker gives each tech a dated record of every unit that passed through their hands. When inventory flags something missing, the tech can show what happened to it.
+Quarterly inventory counts come up about 5% short on equipment such as routers, fibre drops and wireless radios. Most of that loss comes from provisioning failures, not lost gear. Field Stock gives each tech a dated record of every unit that passed through their hands. When inventory flags something missing, the tech can show what happened to it.
 
 ## How it works
 
@@ -27,10 +29,10 @@ Logs every movement of stock. Each entry records the date and time and, when the
 
 | Action | What it records |
 |---|---|
-| **Deploy** | One item at a time against the work order's SA number. The tech types the digits and the app saves it as SA-1234567. The SA number stays filled in so you can add the rest of the job (radio, router, drop, NID). |
-| **Receive** | Several items at once. Pick where they came from: Warehouse, Recovery (asks for the account), Transfer (asks for the dealer) or Other. The scanner runs in **continuous mode**: move it across a box of units and each new serial is added with a beep. Repeats are ignored, and MAC barcodes or units already in stock are refused. Turn it off in the scanner to go back to Scan and Accept. |
-| **Transfer** | Items going to another dealer, handed over in person or shipped (with an optional tracking number). Drafts an email to xninventory@xplore.ca, which the tech must send. |
-| **RMA** | Items going back on RMA. An RMA number is required, and there's a link to the RMA Request Form. |
+| **Deploy** | One item at a time against the work order's SA number (7 digits). The tech types the digits or taps **Paste**, and the app saves it as SA-1234567. Paste finds the SA number in whatever was copied: SA-1234567, sa 1234567, SA#1234567, a bare 7-digit number, or a line of work order text. Long-press pasting into the box works the same way. The SA number stays filled in so you can add the rest of the job (radio, router, drop, NID). |
+| **Receive** | Several items at once. Tap where they came from: Warehouse, Recovery (asks for the SA number it was recovered on), Transfer (asks for the dealer) or Other. The scanner runs in **continuous mode**: move it across a box of units and each new serial is added with a beep. Repeats are ignored, and MAC barcodes or units already in stock are refused. Turn it off in the scanner to go back to Scan and Accept. |
+| **Transfer** | Items going to another dealer, handed over in person or shipped (with an optional tracking number). Drafts an email to xninventory@xplore.ca, which the tech must send. **Open in Email** fills in a plain-text version. **Copy Formatted Email** copies a formatted version, with a details block and an items table, to paste into Outlook or Mail. |
+| **RMA** | Items going back on RMA. An RMA number is required, and there's a link to the RMA Request Form. A shipping tracking number can be added. It shows in History and in the Sheet's Tracking number column. |
 | **Recycle** | Items being recycled. The tech confirms they checked the inventory system first. |
 
 Serials can be scanned with the camera, scanned from a photo, or typed. The app recognizes the item from the serial number in most cases. If you scan a MAC address barcode by mistake, it tells you to scan the serial instead.
@@ -64,7 +66,7 @@ You can also count without a list, which compares your scans against your own re
 ### Admin
 - **Ordering & RMAs:** Manual Order Request, the RMA Request Form, and the Dealer Portal.
 - **Your Details:** change your name, dealer, account numbers or shipping address.
-- **Appearance:** System, Light or Dark.
+- **Appearance:** System, Light, Dark or Black. Black is true black for OLED screens.
 - **Google Sheets:** sync status, Sync Now, Open Sheet, Switch Account.
 - **History Check:** verifies every sealed entry and lists any problems.
 - **Export to Excel:** a copy of your history and on-hand stock for your own reference.
@@ -88,12 +90,12 @@ Outside libraries load from public CDNs and are cached for offline use: ZXing (b
 ## Updating the site
 
 1. Upload the changed files to the repo, replacing the old ones.
-2. **Bump the version in `sw.js`** (for example `techstock-v48` to `techstock-v49`) every time `index.html` changes. Without a new version number, phones won't see the update.
+2. **In `sw.js`, bump `VERSION`** (for example `techstock-v49` to `techstock-v50`) **and set `UPDATED`** to the release date and time (for example `2026-11-04T08:15:00-05:00`) every time `index.html` changes. Without a new version number, phones won't see the update.
 3. GitHub Pages can take a few minutes to publish.
 
 **What techs see:** the app checks for a new version when it opens, when it comes back to the screen, and every 30 minutes. The new version downloads in the background, then an **Update available** banner appears with **Later** and **Update Now**. Nothing changes until the tech taps Update Now, so a log in progress isn't interrupted. If there are unsaved items in the Logs form, the banner tells them to save first. Tapping Later hides the banner until the next time the app opens. Fully closing and reopening the app also switches to the new version.
 
-The current version number is shown at the bottom of the Admin tab.
+The bottom of the Admin tab shows the version the phone is running and when that version was released, for example "Field Stock version 49, Updated Tue, Nov 3, 2026, 9:30 PM". The update banner shows the new version's number.
 
 To check which version is live on the site, open `https://xploreforms.github.io/StockTracker/sw.js` and look at the `VERSION` line. To check which version a phone is running, look at the bottom of its Admin tab.
 

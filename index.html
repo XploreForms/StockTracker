@@ -3,17 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Stock Tracker</title>
+<title>Field Stock</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Stock Tracker">
+<meta name="apple-mobile-web-app-title" content="Field Stock">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#002B2B">
 <link rel="manifest" href="manifest.json">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<script>try{var t=localStorage.getItem("techstock.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+<script>try{var t=localStorage.getItem("techstock.theme");if(t==="light"||t==="dark"||t==="black")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -42,6 +42,14 @@
   --line:rgba(200,240,225,.08); --shadow:0 1px 2px rgba(0,0,0,.3);
   --in:#6FD893; --in-bg:#163A26; --out:#86B6EC; --out-bg:#182C44; --xfer:#E2B467; --xfer-bg:#3A2C14;
   --ret:#C3A2E6; --ret-bg:#2E2240; --warn:#F39A6B; --warn-bg:#3B2116; --void:#6D7F79; --rec-bg:#2A4741; color-scheme:dark}
+/* Black: true black for OLED screens (saves battery, easier on the eyes at night) */
+:root[data-theme="black"]{
+  --bg:#000000; --surface:#0C0F0E; --surface-2:#161D1B; --ink:#E4EFEA; --muted:#8FA39D;
+  --brand:#000000; --brand-2:#4E8C7B; --brand-ink:#E9F5EF; --accent:#58C774; --accent-ink:#04200F;
+  --line:rgba(200,240,225,.10); --shadow:none;
+  --in:#6FD893; --in-bg:#10291B; --out:#86B6EC; --out-bg:#111F31; --xfer:#E2B467; --xfer-bg:#2A1F0E;
+  --ret:#C3A2E6; --ret-bg:#21182E; --warn:#F39A6B; --warn-bg:#2B180F; --void:#6D7F79; --rec-bg:#1E3430; color-scheme:dark}
+:root[data-theme="black"] .top{border-bottom:1px solid var(--line)}
 
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
@@ -70,7 +78,9 @@ button{cursor:pointer}
 .sa-in{display:flex;align-items:stretch;border-radius:var(--r-sm);box-shadow:inset 0 0 0 1px var(--line);background:var(--surface)}
 .sa-in:focus-within{box-shadow:inset 0 0 0 2px var(--accent)}
 .sa-in span{display:grid;place-items:center;padding:0 2px 0 12px;font:600 1rem/1 var(--f-mono);color:var(--muted)}
-.sa-in input{box-shadow:none!important;background:transparent!important;padding-left:4px!important}
+.sa-in input{box-shadow:none!important;background:transparent!important;padding-left:4px!important;flex:1;min-width:0}
+.sa-paste{flex:none;display:inline-flex;align-items:center;gap:6px;margin:6px;border:0;border-radius:var(--r-sm);padding:0 12px;background:var(--surface-2);color:var(--ink);font:600 .88rem/1 var(--f-body)}
+.sa-paste svg{width:16px;height:16px}
 .lbl-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .mic{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:99px;padding:6px 12px;background:var(--surface-2);color:var(--ink);font:600 .85rem/1 var(--f-body)}
 .mic svg{width:16px;height:16px}
@@ -137,7 +147,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:inset 0 0 0 2px 
 .seg button{border:0;background:transparent;border-radius:9px;padding:8px 0 7px;font-weight:600;font-size:.82rem;min-width:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px}
 .seg button i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;background:var(--tb);color:var(--tc)}
 .seg button i svg{width:16px;height:16px}
-.theme-seg{grid-template-columns:repeat(3,1fr)}
+.theme-seg{grid-template-columns:repeat(4,1fr)}
 .line{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
 .line-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .line-main b{font-weight:600;line-height:1.25}
@@ -153,6 +163,7 @@ input:focus,select:focus,textarea:focus{outline:none;box-shadow:inset 0 0 0 2px 
 .check input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--brand-2)}
 .mail-box{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px}
 .mail-box pre{margin:0;white-space:pre-wrap;font:inherit;font-size:.9rem;overflow-wrap:anywhere}
+.mail-html{background:#FFFFFF;border-radius:8px;padding:14px;overflow-x:auto;border:1px solid var(--line)}
 .lines-empty{border:1px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:.9rem}
 .theme-seg button{padding:10px 0;font-size:.9rem}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--tc);box-shadow:var(--shadow)}
@@ -308,6 +319,8 @@ a.link-row:active{background:var(--surface-2)}
 main a:not(.btn),.setup a:not(.btn),.sheet a:not(.btn){color:var(--brand-2);font-weight:600;text-underline-offset:3px}
 .btn.ghost.center{align-self:center}
 .two-col{grid-template-columns:1fr 1fr}
+.four-col{grid-template-columns:repeat(4,1fr)}
+#fromSeg button{padding:10px 0}
 a.btn{text-decoration:none;color:inherit}
 a.btn.primary{color:var(--accent-ink)}
 .gs-btns{display:flex;flex-wrap:wrap;gap:8px}
@@ -398,7 +411,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
   <div class="top-in">
     <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
     <div class="top-txt">
-      <h1>Stock Tracker</h1>
+      <h1>Field Stock</h1>
       <div class="who" id="who">Saved on this phone</div>
     </div>
     <span class="mode" id="mode">No backup yet</span>
@@ -440,17 +453,19 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
     <form class="card" id="logForm" novalidate>
       <div class="field" id="accountBlock" hidden>
         <label for="accountIn">SA Number</label>
-        <div class="sa-in"><span aria-hidden="true">SA-</span><input type="text" id="accountIn" inputmode="numeric" autocomplete="off" placeholder="1234567" class="mono" aria-describedby="saEx"></div>
-        <small class="ex" id="saEx">The service appointment number from the work order, e.g. SA-1234567</small>
+        <div class="sa-in"><span aria-hidden="true">SA-</span><input type="text" id="accountIn" inputmode="numeric" autocomplete="off" placeholder="1234567" class="mono" maxlength="7" aria-describedby="saEx"><button type="button" class="sa-paste" data-sapaste="accountIn" aria-label="Paste SA number"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg>Paste</button></div>
+        <small class="ex" id="saEx">7 digits from the work order, e.g. SA-1234567. Copy it in FSL and tap Paste.</small>
       </div>
       <div class="field" id="fromBlock" hidden>
-        <label for="fromSel">Received From</label>
-        <select id="fromSel">
-          <option value="">Choose where it came from…</option>
-          <option>Warehouse</option><option>Recovery</option><option>Transfer</option><option>Other</option>
-        </select>
+        <span class="lbl" id="fromLbl">Received From</span>
+        <div class="seg four-col" id="fromSeg" role="group" aria-labelledby="fromLbl">
+          <button class="t-count" type="button" data-from="Warehouse" aria-pressed="false">Warehouse</button>
+          <button class="t-count" type="button" data-from="Recovery" aria-pressed="false">Recovery</button>
+          <button class="t-count" type="button" data-from="Transfer" aria-pressed="false">Transfer</button>
+          <button class="t-count" type="button" data-from="Other" aria-pressed="false">Other</button>
+        </div>
         <input type="text" id="fromDealer" autocomplete="off" placeholder="Dealer you received the transfer from" hidden>
-        <input type="text" id="fromAcct" inputmode="numeric" autocomplete="off" placeholder="Account number it was recovered from" class="mono" hidden>
+        <div class="sa-in" id="fromSaBox" hidden><span aria-hidden="true">SA-</span><input type="text" id="fromAcct" inputmode="numeric" autocomplete="off" placeholder="1234567" class="mono" maxlength="7" aria-label="SA number it was recovered on"><button type="button" class="sa-paste" data-sapaste="fromAcct" aria-label="Paste SA number"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg>Paste</button></div>
         <input type="text" id="fromIn" autocomplete="off" placeholder="Where did it come from?" hidden>
       </div>
       <div class="field" id="toBlock" hidden>
@@ -461,12 +476,14 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
           <button class="t-count" type="button" data-how="ship" aria-pressed="false">Shipping it</button>
         </div>
         <input type="text" id="trackIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Tracking number (optional)" class="mono" hidden>
-        <div class="note warn">You're sending these items, so you're responsible for emailing the transfer to the inventory team. Stock Tracker drafts the email after you log it.</div>
+        <div class="note warn">You're sending these items, so you're responsible for emailing the transfer to the inventory team. Field Stock drafts the email after you log it.</div>
       </div>
       <div class="field" id="rmaBlock" hidden>
         <label for="rmaIn">RMA Number</label>
         <input type="text" id="rmaIn" autocomplete="off" autocapitalize="characters" placeholder="From the RMA label or email" class="mono">
         <a class="help" href="https://form.jotform.com/72404477841257" target="_blank" rel="noopener">Need an RMA number? Open the RMA Request Form</a>
+        <label for="rmaTrack" style="margin-top:6px">Shipping Tracking Number <span class="muted">(Optional)</span></label>
+        <input type="text" id="rmaTrack" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="From the shipping label" class="mono">
       </div>
       <div class="field" id="recycleBlock" hidden>
         <div class="note warn"><b>Before you recycle anything</b><br>Check the inventory system first. Don't recycle equipment that is still assigned to you or has an open RMA. It will show up as missing at your next count.</div>
@@ -492,7 +509,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
       </div>
       <div class="field" id="serialBlock" hidden>
         <span class="lbl" id="serialLbl">Serial Numbers</span>
-        <span class="muted" id="serialHint" style="font-size:.82rem" hidden>Scan first if you like. The item fills in when Stock Tracker recognizes the serial.</span>
+        <span class="muted" id="serialHint" style="font-size:.82rem" hidden>Scan first if you like. The item fills in when Field Stock recognizes the serial.</span>
         <div class="row">
           <input type="text" id="serialIn" placeholder="Type a serial" autocomplete="off" autocapitalize="characters" spellcheck="false" class="mono">
           <button type="button" class="btn" id="addSerialBtn" aria-label="Add typed serial">Add</button>
@@ -545,7 +562,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
   <section class="panel" id="p-count" hidden>
     <div><h2>Inventory count</h2>
       <p class="help intro" id="countIntro">Scan every serialized unit in your truck and storage. Then compare against your records or the inventory team's count list.</p></div>
-    <div id="countEmpty" class="empty"><h3>No count in progress</h3><p>Got a count list from the inventory team? Upload it, scan everything you have, count the non-serialized items, and Stock Tracker fills in the list for you to send back. Counting doesn't change your stock.</p>
+    <div id="countEmpty" class="empty"><h3>No count in progress</h3><p>Got a count list from the inventory team? Upload it, scan everything you have, count the non-serialized items, and Field Stock fills in the list for you to send back. Counting doesn't change your stock.</p>
       <button class="btn primary" type="button" id="countStartList">Upload Count List</button>
       <button class="btn ghost" type="button" id="countStart">Count Without a List</button></div>
     <div id="countActive" class="panel" hidden>
@@ -603,7 +620,9 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
         <button class="t-count" type="button" data-theme-pick="system">System</button>
         <button class="t-count" type="button" data-theme-pick="light">Light</button>
         <button class="t-count" type="button" data-theme-pick="dark">Dark</button>
+        <button class="t-count" type="button" data-theme-pick="black">Black</button>
       </div>
+      <p class="help">Black uses true black, which saves battery on OLED screens like most iPhones.</p>
     </div>
     <div class="card" id="gsCard">
       <div class="cmp-head"><h3>Google Sheets</h3><span class="pill t-count" id="gsPill">Off</span></div>
@@ -698,7 +717,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 <div class="setup" id="setup" hidden role="dialog" aria-modal="true" aria-labelledby="setupH">
   <div class="setup-band"><div class="setup-band-in">
     <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
-    <h1 id="setupH">Stock Tracker</h1>
+    <h1 id="setupH">Field Stock</h1>
     <p>Log every unit you receive, deploy, transfer, RMA or recycle. Everything saves on this phone and backs up to your own Google Sheet.</p>
   </div></div>
   <form class="setup-body" id="setupForm" novalidate>
@@ -722,7 +741,7 @@ details.grp summary small{display:block;font-weight:400;font-size:.82rem;color:v
 </div>
 
 <div class="upd" id="updBar" hidden role="status" aria-live="polite">
-  <div class="upd-txt"><b>Update available</b><span id="updNote">A new version of Stock Tracker is ready.</span></div>
+  <div class="upd-txt"><b>Update available<span id="updVer"></span></b><span id="updNote">A new version of Field Stock is ready.</span></div>
   <div class="upd-btns"><button class="btn sm ghost" type="button" id="updLater">Later</button><button class="btn sm primary" type="button" id="updGo">Update Now</button></div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -849,14 +868,14 @@ const PLAT = /iPhone|iPad|iPod/.test(UA) || (navigator.platform==="MacIntel" && 
 const HELP = {
   ios: {
     steps:["Tap <b>Export to Excel</b>.","Choose <b>Save to Files</b> to keep it, or open it in Excel."],
-    home:"Add Stock Tracker to your Home Screen: tap the <b>Share</b> button in Safari, then <b>Add to Home Screen</b>. It opens like an app and iPhone is less likely to clear its data.",
+    home:"Add Field Stock to your Home Screen: tap the <b>Share</b> button in Safari, then <b>Add to Home Screen</b>. It opens like an app and iPhone is less likely to clear its data.",
     restore:"Tap Choose Excel File, then <b>Browse</b> and pick the file from wherever you saved it.",
     loc:"Location is off. Turn it on in Settings › Privacy & Security › Location Services › Safari Websites.",
     cam:"Camera is blocked. In Safari tap aA › Website Settings › Camera › Allow, then try again."
   },
   android: {
     steps:["Tap <b>Export to Excel</b>. The file saves to your <b>Downloads</b>.","Open it from Downloads in Excel, or move it wherever you keep files."],
-    home:"Add Stock Tracker to your home screen: tap <b>⋮</b> in Chrome, then <b>Add to Home screen</b> or <b>Install app</b>. It opens like an app and keeps your data more reliably.",
+    home:"Add Field Stock to your home screen: tap <b>⋮</b> in Chrome, then <b>Add to Home screen</b> or <b>Install app</b>. It opens like an app and keeps your data more reliably.",
     restore:"Tap Choose Excel File and pick it from Downloads or wherever you saved it.",
     loc:"Location is off. In Chrome, tap the icon beside the web address › Permissions › Location › Allow.",
     cam:"Camera is blocked. In Chrome, tap the icon beside the web address › Permissions › Camera › Allow."
@@ -1143,8 +1162,12 @@ $("dItemSel").addEventListener("change",()=>{
   if(same) same.qty++; else if(multi()) F.lines.push({serial:"", sku:id, qty:1}); else F.lines=[{serial:"", sku:id, qty:1}];
   $("dItemSel").value=""; renderLines();
 });
-function syncFrom(){ const v=$("fromSel").value; $("fromDealer").hidden=v!=="Transfer"; $("fromIn").hidden=v!=="Other"; $("fromAcct").hidden=v!=="Recovery"; }
-$("fromSel").addEventListener("change",()=>{ syncFrom(); if($("fromSel").value==="Transfer") $("fromDealer").focus(); else if($("fromSel").value==="Other") $("fromIn").focus(); else if($("fromSel").value==="Recovery") $("fromAcct").focus(); });
+let FROM="";
+function syncFrom(){ const v=FROM; $("fromDealer").hidden=v!=="Transfer"; $("fromIn").hidden=v!=="Other"; $("fromSaBox").hidden=v!=="Recovery";
+  document.querySelectorAll("#fromSeg [data-from]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.from===v?"true":"false")); }
+$("fromSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-from]"); if(!b) return; FROM=b.dataset.from; syncFrom(); $("formErr").innerHTML="";
+  if(FROM==="Transfer") $("fromDealer").focus(); else if(FROM==="Other") $("fromIn").focus(); else if(FROM==="Recovery") $("fromAcct").focus(); });
+$("fromAcct").addEventListener("input",()=>{ const el=$("fromAcct"), d=saDigits(el.value); if(el.value!==d) el.value=d; });
 let HOW="person";
 function setHow(h){ HOW=h; document.querySelectorAll("#howSeg [data-how]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.how===h?"true":"false")); $("trackIn").hidden=h!=="ship"; }
 $("howSeg").addEventListener("click",e=>{ const b=e.target.closest("[data-how]"); if(!b) return; setHow(b.dataset.how); if(HOW==="ship") $("trackIn").focus(); });
@@ -1157,6 +1180,28 @@ $("dPhotoBtn").addEventListener("click",()=>{ photoTarget="log"; $("camInput").v
 F.jobId=null; F.jobAcct="";
 /* SA number: typed as digits, saved as SA-1234567 */
 const saDigits=v=>String(v||"").replace(/^\s*SA\s*-?/i,"").replace(/\D/g,"");
+/* Pull the SA number out of whatever was copied: "SA-1234567", "sa 1234567", "SA#1234567", "SA–1234567",
+   "1234567", or a line of work order text that contains one. SA numbers are 7 digits. */
+function findSA(text){
+  const t=String(text||"").replace(/[‐-―−]/g,"-");
+  let m=t.match(/\bSA\s*[-_#:.]?\s*(\d{7})(?!\d)/i); if(m) return m[1];
+  m=t.match(/(?:^|\D)(\d{7})(?!\d)/); if(m) return m[1];
+  const d=t.replace(/\D/g,""); return d.length===7 ? d : "";
+}
+function setSA(id, text){
+  const d=findSA(text), el=$(id);
+  if(!d){ toast(String(text||"").trim() ? "No SA number found in what you copied. It needs 7 digits, like SA-1234567." : "Nothing copied yet. Copy the SA number in FSL first."); return false; }
+  el.value=d; el.dispatchEvent(new Event("input",{bubbles:true})); $("formErr").innerHTML=""; toast("Pasted SA-"+d); return true;
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-sapaste]"); if(!b) return;
+  const id=b.dataset.sapaste;
+  try{ const txt=await navigator.clipboard.readText(); setSA(id, txt); }
+  catch(err){ $(id).focus(); toast("Tap and hold in the box, then tap Paste."); }
+});
+["accountIn","fromAcct"].forEach(id=>$(id).addEventListener("paste",e=>{
+  const txt=(e.clipboardData||window.clipboardData).getData("text"); e.preventDefault(); setSA(id, txt);
+}));
 const saOf=v=>{ const d=saDigits(v); return d ? "SA-"+d : ""; };
 function renderJob(){
   const box=$("jobList"); if(!box) return;
@@ -1284,7 +1329,7 @@ $("logForm").addEventListener("submit", async e=>{
   return saveMulti();
   const s=SKU[$("skuSel").value]; const err=m=>{ $("formErr").innerHTML=`<div class="note warn">${esc(m)}</div>`; };
   $("formErr").innerHTML="";
-  if(!s) return err(F.pick ? "Tap which model this is, above." : F.serials.length ? "Stock Tracker doesn't recognize this serial. Choose the item." : "Choose an item first.");
+  if(!s) return err(F.pick ? "Tap which model this is, above." : F.serials.length ? "Field Stock doesn't recognize this serial. Choose the item." : "Choose an item first.");
   const pending=$("serialIn").value.trim(); if(s.serial && pending){ addSerial(pending); $("serialIn").value=""; }
   if(s.serial && !F.serials.length) return err("Scan or type at least one serial number.");
   if(s.serial && F.type==="receive"){
@@ -1323,7 +1368,7 @@ async function saveDeploy(){
   const typed=$("dSerialIn").value.trim(); if(typed && deployAddSerial(typed)) $("dSerialIn").value="";
   const sa=saOf($("accountIn").value), sad=saDigits(sa);
   if(!sad){ $("accountIn").focus(); return err("Enter the SA number from the work order."); }
-  if(sad.length<4 || sad.length>12){ $("accountIn").focus(); return err("That SA number doesn't look right. It's the number after SA-, e.g. SA-1234567."); }
+  if(sad.length!==7){ $("accountIn").focus(); return err("SA numbers are 7 digits, e.g. SA-1234567."); }
   if(!F.lines.length) return err("Scan or pick the item you're deploying.");
   const unknown=F.lines.find(l=>!SKU[l.sku]); if(unknown) return err(`Pick the item for ${unknown.serial}.`);
   saving=true; $("saveBtn").disabled=true; $("saveBtn").textContent="Saving…";
@@ -1350,17 +1395,21 @@ async function saveMulti(){
   const err=(m,focus)=>{ $("formErr").innerHTML=`<div class="note warn">${esc(m)}</div>`; if(focus) $(focus).focus(); };
   $("formErr").innerHTML="";
   const typed=$("dSerialIn").value.trim(); if(typed && deployAddSerial(typed)) $("dSerialIn").value="";
-  let from="", toDealer="", acct="", tracking="";
+  let from="", toDealer="", acct="", sa="", tracking="";
   if(t==="receive"){
-    const src=$("fromSel").value;
-    if(!src) return err("Choose where the items came from.","fromSel");
+    const src=FROM;
+    if(!src){ err("Choose where the items came from."); $("fromSeg").scrollIntoView({block:"center"}); return; }
     if(src==="Transfer"){ const d=$("fromDealer").value.trim(); if(!d) return err("Enter the dealer you received the transfer from.","fromDealer"); from="Transfer from "+d; }
     else if(src==="Other"){ const o=$("fromIn").value.trim(); if(!o) return err("Type where the items came from.","fromIn"); from=o; }
-    else if(src==="Recovery"){ acct=$("fromAcct").value.trim(); if(!acct) return err("Enter the account number the equipment was recovered from.","fromAcct"); from="Recovery"; }
+    else if(src==="Recovery"){ sa=saOf($("fromAcct").value); const d=saDigits(sa);
+      if(!d) return err("Enter the SA number the equipment was recovered on.","fromAcct");
+      if(d.length!==7) return err("SA numbers are 7 digits, e.g. SA-1234567.","fromAcct");
+      from="Recovery"; }
     else from=src;
   }
   if(t==="transfer"){ toDealer=$("toIn").value.trim(); if(!toDealer) return err("Enter the dealer you're transferring to.","toIn");
     tracking = HOW==="ship" ? ($("trackIn").value.trim() || "Shipped") : ""; }
+  if(t==="rma") tracking=$("rmaTrack").value.trim();
   if(t==="rma" && !$("rmaIn").value.trim()) return err("Enter the RMA number.","rmaIn");
   if(!F.lines.length) return err({receive:"Scan or add the items you received.",transfer:"Scan or add the items you're transferring.",rma:"Scan the items going back on RMA.",recycle:"Scan or add the items you're recycling."}[t]);
   const unknown=F.lines.find(l=>!SKU[l.sku]); if(unknown) return err(`Pick the item for ${unknown.serial}.`);
@@ -1372,15 +1421,15 @@ async function saveMulti(){
   saving=true; $("saveBtn").disabled=true; $("saveBtn").textContent="Saving…";
   if(LOC.status!=="ok" || Date.now()-LOC.at>5*60000) await refreshLocation(true);
   const jobId=newId(), ts=Date.now();
-  const base={type:t, ts, jobId, account:acct, accountKey:keyOf(acct), tracking, toTech:toDealer, from, rma:t==="rma"?$("rmaIn").value.trim():"", note:$("noteIn").value.trim(),
+  const base={type:t, ts, jobId, sa, account:acct, accountKey:keyOf(acct), tracking, toTech:toDealer, from, rma:t==="rma"?$("rmaIn").value.trim():"", note:$("noteIn").value.trim(),
     lat:LOC.status==="ok"?LOC.lat:null, lng:LOC.status==="ok"?LOC.lng:null, acc:LOC.status==="ok"?LOC.acc:null, voided:false};
   let ok=true, units=0;
   F.lines.forEach(l=>{ const s=SKU[l.sku]; const q=l.serial?1:l.qty; units+=q;
     if(!Store.add(Object.assign({},base,{sku:s.id, skuName:s.name, serial:l.serial||"", serialKey:keyOf(l.serial||""), qty:q}))) ok=false; });
   if(ok){
     if(t!=="transfer") toast(`${TYPES[t].label} ${units} item${units===1?"":"s"}`);
-    F.lines=[]; $("noteIn").value=""; $("rmaIn").value=""; $("toIn").value="";
-    $("fromSel").value=""; $("fromDealer").value=""; $("fromIn").value=""; $("fromAcct").value=""; syncFrom(); $("recycleOk").checked=false;
+    F.lines=[]; $("noteIn").value=""; $("rmaIn").value=""; $("rmaTrack").value=""; $("toIn").value="";
+    FROM=""; $("fromDealer").value=""; $("fromIn").value=""; $("fromAcct").value=""; syncFrom(); $("recycleOk").checked=false;
     $("trackIn").value=""; setHow("person");
   }
   saving=false; $("saveBtn").disabled=false; $("saveBtn").textContent=TYPES[t].save;
@@ -1393,27 +1442,29 @@ const INV_EMAIL="xninventory@xplore.ca";
 function transferMail(jobId){
   const evs=Store.events.filter(e=>e.jobId===jobId && e.type==="transfer" && !e.voided).sort((a,b)=>a.ts-b.ts);
   if(!evs.length) return null;
-  const to=evs[0].toTech, when=new Date(evs[0].ts).toLocaleDateString([], {year:"numeric",month:"long",day:"numeric"});
-  const fromDealer=ME.dealer||"my dealership";
-  const lines=evs.map(e=>{ const s=SKU[e.sku]; const name=(s&&s.name)||e.skuName;
-    return `- ${name} (${e.sku})${e.serial?` - S/N ${e.serial}`:` - Qty ${e.qty}`}`; });
-  const units=evs.reduce((n,e)=>n+(e.serial?1:Number(e.qty)||0),0);
-  const subject=`Inventory transfer: ${fromDealer} to ${to} (${when})`;
-  const body=`Hello Inventory team,
-
-Please move the following equipment from ${fromDealer} to ${to}.
-
-From dealer: ${fromDealer}
-SAP account #: ${ME.sap}
-Salesforce account #: ${ME.sf}
-To dealer: ${to}
-Date: ${when}
-${!evs[0].tracking ? "Method: In person" : evs[0].tracking==="Shipped" ? "Method: Shipped" : `Method: Shipped, tracking ${evs[0].tracking}`}
-Items (${units}):
-${lines.join("\n")}
-
-Thank you,`;
-  return {subject, body};
+  const to=evs[0].toTech, fromDealer=ME.dealer||"my dealership", tr=evs[0].tracking||"";
+  const method = !tr ? "In Person" : tr==="Shipped" ? "Shipped" : `Shipped | Tracking: ${tr}`;
+  const items=evs.map(e=>{ const s=SKU[e.sku]; return {name:(s&&s.name)||e.skuName||"Item", part:e.sku, serial:e.serial||"", qty:e.serial?1:(Number(e.qty)||0)}; });
+  const units=items.reduce((n,i)=>n+i.qty,0);
+  const subject=`Inventory Transfer: ${fromDealer} to ${to}`;
+  const body=["Inventory Transfer","",`From Dealer: ${fromDealer}`,`To Dealer: ${to}`,"",`Transfer Method: ${method}`,"",`Items (${units}):`,
+    ...items.map(i=>`- ${i.name} (${i.part}) - ${i.serial?`S/N ${i.serial}`:`Qty ${i.qty}`}`),"","Thank you,"].join("\n");
+  // the same email with formatting, for pasting into Outlook or Mail
+  const td="padding:6px 12px 6px 0;border-bottom:1px solid #DCE5E1;vertical-align:top;";
+  const th="padding:6px 12px 6px 0;border-bottom:2px solid #002B2B;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#5A6F69;";
+  const kv=(k,v)=>`<tr><td style="padding:3px 18px 3px 0;color:#5A6F69;font-weight:bold;white-space:nowrap;vertical-align:top">${esc(k)}</td><td style="padding:3px 0;vertical-align:top">${v}</td></tr>`;
+  const html=`<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#0E2A27">
+<p style="margin:0 0 12px;font-size:18px;font-weight:bold;color:#002B2B">Inventory Transfer</p>
+<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px">
+${kv("From Dealer",esc(fromDealer))}${kv("To Dealer",esc(to))}${kv("Transfer Method", !tr||tr==="Shipped" ? esc(method) : `Shipped<br>Tracking: <span style="font-family:Consolas,Menlo,monospace">${esc(tr)}</span>`)}
+</table>
+<p style="margin:0 0 6px;font-weight:bold">Items (${units})</p>
+<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px">
+<tr><th style="${th}">Item</th><th style="${th}">Serial / Qty</th></tr>
+${items.map(i=>`<tr><td style="${td}">${esc(i.name)}<br><span style="font-size:12px;color:#5A6F69">${esc(i.part)}</span></td><td style="${td}font-family:Consolas,Menlo,monospace;white-space:nowrap">${i.serial?esc(i.serial):"Qty "+i.qty}</td></tr>`).join("")}
+</table>
+<p style="margin:0">Thank you,</p></div>`;
+  return {subject, body, html};
 }
 function openMailSheet(o){   // {title, note, to, subject, body, extra}
   const href=`mailto:${o.to}?subject=${encodeURIComponent(o.subject)}&body=${encodeURIComponent(o.body)}`;
@@ -1423,22 +1474,27 @@ function openMailSheet(o){   // {title, note, to, subject, body, extra}
     ${o.pre||""}
     <div class="mail-box">
       <dl class="kv-plain"><dt>To</dt><dd style="user-select:all">${esc(o.to)}</dd><dt>Subject</dt><dd>${esc(o.subject)}</dd></dl>
-      <pre id="mailBody">${esc(o.body)}</pre>
+      ${o.html?`<div id="mailBody" class="mail-html">${o.html}</div>`:`<pre id="mailBody">${esc(o.body)}</pre>`}
     </div>
     <a class="btn primary block" href="${esc(href)}">Open in Email</a>
-    <button class="btn block" type="button" id="mailCopy">Copy Email Text</button>
+    <button class="btn block" type="button" id="mailCopy">${o.html?"Copy Formatted Email":"Copy Email Text"}</button>
+    ${o.html?`<p class="help">Open in Email fills in the address, subject and a plain-text version. For the formatted version, tap Copy Formatted Email and paste it over the email's text.</p>`:""}
     ${o.extra||""}`;
   $("detailSheet").hidden=false;
   const m=o;
   $("mailCopy").addEventListener("click",async()=>{
     const txt=`To: ${m.to}\nSubject: ${m.subject}\n\n${m.body}`;
+    if(m.html && window.ClipboardItem && navigator.clipboard && navigator.clipboard.write){
+      try{ await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([m.html],{type:"text/html"}),"text/plain":new Blob([m.body],{type:"text/plain"})})]);
+        toast("Formatted email copied. Paste it into the email."); return; }catch(e){}
+    }
     try{ await navigator.clipboard.writeText(txt); toast("Email copied. Paste it into a new email."); }
     catch(e){ const r=document.createRange(); r.selectNodeContents($("mailBody")); const sel=getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Select and copy the text"); }
   });
 }
 function openTransferMail(jobId){
   const m=transferMail(jobId); if(!m) return;
-  openMailSheet({title:"Send the transfer email", note:"You sent these items, so emailing the inventory team is your job. The transfer isn't finished until they get this email.", to:INV_EMAIL, subject:m.subject, body:m.body});
+  openMailSheet({title:"Send the transfer email", note:"You sent these items, so emailing the inventory team is your job. The transfer isn't finished until they get this email.", to:INV_EMAIL, subject:m.subject, body:m.body, html:m.html});
 }
 
 /* ---------- manual order request (replaces the Jotform) ---------- */
@@ -1581,8 +1637,8 @@ function evLine(e){
   const where = e.type==="deploy"&&e.sa ? ` · <span class="mono">${esc(e.sa)}</span>` :
                 e.type==="deploy"&&e.account ? ` · Acct <span class="mono">${esc(e.account)}</span>` :
                 e.type==="transfer"&&e.toTech ? ` · To ${esc(e.toTech)}` :
-                e.type==="receive"&&e.from ? ` · From ${esc(e.from)}${e.account?` · Acct <span class="mono">${esc(e.account)}</span>`:""}` :
-                e.type==="rma"&&e.rma ? ` · RMA <span class="mono">${esc(e.rma)}</span>` : "";
+                e.type==="receive"&&e.from ? ` · From ${esc(e.from)}${e.sa?` · <span class="mono">${esc(e.sa)}</span>`:e.account?` · Acct <span class="mono">${esc(e.account)}</span>`:""}` :
+                e.type==="rma"&&e.rma ? ` · RMA <span class="mono">${esc(e.rma)}</span>${e.tracking?` · Tracking <span class="mono">${esc(e.tracking)}</span>`:""}` : "";
   return {name, sub: what+where};
 }
 function renderHistory(){
@@ -1622,6 +1678,7 @@ function openDetail(id){
       ${e.toTech?`<dt>Transferred To</dt><dd>${esc(e.toTech)}</dd>`:""}
       ${e.from?`<dt>Received From</dt><dd>${esc(e.from)}</dd>`:""}
       ${e.rma?`<dt>RMA Number</dt><dd class="mono">${esc(e.rma)}</dd>`:""}
+      ${e.type==="rma"&&e.tracking?`<dt>Tracking Number</dt><dd class="mono">${esc(e.tracking)}</dd>`:""}
       ${e.type==="transfer"?`<dt>Method</dt><dd>${!e.tracking?"In person":e.tracking==="Shipped"?"Shipped":`Shipped · <span class="mono">${esc(e.tracking)}</span>`}</dd>`:""}
       ${e.jobId ? (()=>{ const mates=Store.events.filter(x=>x.jobId===e.jobId && x.id!==e.id && !x.voided);
           return mates.length ? `<dt>Installed With</dt><dd>${mates.map(x=>esc((SKU[x.sku]&&SKU[x.sku].name)||x.skuName)+(x.serial?` <span class="mono">${esc(x.serial)}</span>`:x.qty>1?` × ${esc(x.qty)}`:"")).join("<br>")}</dd>` : ""; })() : ""}
@@ -1847,7 +1904,7 @@ const GOOGLE_SIGNUP="https://accounts.google.com/signup";
 const GOOGLE_RECOVER="https://accounts.google.com/signin/recovery";
 const ic=(d)=>`<span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${d}</svg></span>`;
 function guideHTML(){
-  return `<p class="help" style="color:var(--ink);font-size:1rem;margin-bottom:12px">Stock Tracker has no server. Everything you log is saved only on this phone, so it needs a backup. You'll connect a free Google account made with your <b>@${WORK_DOMAIN}</b> work email.</p>
+  return `<p class="help" style="color:var(--ink);font-size:1rem;margin-bottom:12px">Field Stock has no server. Everything you log is saved only on this phone, so it needs a backup. You'll connect a free Google account made with your <b>@${WORK_DOMAIN}</b> work email.</p>
   <span class="eyebrow">Why This Step Is Required</span>
   <ul class="why" style="margin:8px 0 14px">
     <li>${ic('<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>')}<span><b>Your phone isn't a safe place on its own</b>If it's lost, broken, reset or replaced, every entry on it is gone. Google Sheets keeps a copy that brings everything back on a new phone.</span></li>
@@ -1874,7 +1931,7 @@ function guideHTML(){
         <p class="help" style="color:var(--ink)">Tap <b>Connect Google Sheets</b>. When Google asks which account to use, pick your <b>@${WORK_DOMAIN}</b> account. If it isn't listed, tap <b>Use another account</b> and sign in with your work email and Google password.</p>
       </div></details>
   </div>
-  <p class="help" style="margin-top:12px">Stock Tracker can only open the one sheet it creates. It can't see anything else in your Google Drive. On a new phone, connect the same account and your entries come back.</p>`;
+  <p class="help" style="margin-top:12px">Field Stock can only open the one sheet it creates. It can't see anything else in your Google Drive. On a new phone, connect the same account and your entries come back.</p>`;
 }
 function openGuideSheet(){
   $("detailBody").innerHTML=`<div class="sheet-head"><h2 id="detailH">Google Backup Setup</h2><button class="btn ghost" data-close="detailSheet">Close</button></div>${guideHTML()}<button class="btn primary block" type="button" id="gsConnect">Connect Google Sheets</button>`;
@@ -1913,7 +1970,7 @@ $("setupForm").addEventListener("submit",e=>{
   const r=readProfile("s");
   if(r.bad){ $("setupErr").innerHTML=`<div class="note warn">Fix the boxes marked in red, then tap Continue.</div>`; $(fid("s",r.bad.k)).focus(); return; }
   Object.assign(ME, r.vals);
-  if(!lsSet(K.me, ME)){ $("setupErr").innerHTML=`<div class="note warn">This phone isn't letting Stock Tracker save. Turn off Private Browsing in Safari and try again.</div>`; return; }
+  if(!lsSet(K.me, ME)){ $("setupErr").innerHTML=`<div class="note warn">This phone isn't letting Field Stock save. Turn off Private Browsing in Safari and try again.</div>`; return; }
   $("setupErr").innerHTML=""; fillMe("a"); paintHeader(); showSetup();
 });
 function paintHeader(){
@@ -1973,7 +2030,7 @@ async function saveFile(file){
 }
 function fileName(){
   const who=ME.name.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,""), d=new Date();
-  return `Stock-Tracker-${who?who+"-":""}${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.xlsx`;
+  return `Field-Stock-${who?who+"-":""}${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.xlsx`;
 }
 function onHandRows(){
   const out=[["Item","Serial / quantity","Received"]];
@@ -1987,14 +2044,14 @@ function buildWorkbook(){
   ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(1,aoa.length-1),c:COLS.length-1}})};
   const onHand=onHandRows();
   const ws2=XLSX.utils.aoa_to_sheet(onHand); ws2["!cols"]=[{wch:34},{wch:22},{wch:14}];
-  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealer",ME.dealer],["SAP account #",ME.sap],["Salesforce account #",ME.sf],["Shipping address",addrLine(ME)],["Saved",new Date().toLocaleString()],["Entries",Store.events.length],[],["Exported from Stock Tracker for your records."]]);
+  const info=XLSX.utils.aoa_to_sheet([["Technician",ME.name],["Dealer",ME.dealer],["SAP account #",ME.sap],["Salesforce account #",ME.sf],["Shipping address",addrLine(ME)],["Saved",new Date().toLocaleString()],["Entries",Store.events.length],[],["Exported from Field Stock for your records."]]);
   info["!cols"]=[{wch:14},{wch:40}];
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"History"); XLSX.utils.book_append_sheet(wb,ws2,"On hand"); XLSX.utils.book_append_sheet(wb,info,"About");
   return XLSX.write(wb,{bookType:"xlsx",type:"array"});
 }
 async function exportExcel(btn){
-  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Field Stock."); return; }
   if(!Store.events.length){ toast("Nothing to export yet."); return; }
   if(!ME.name){ setTab("backup"); $("a_name").focus(); toast("Add your name first so your file is easy to find."); return; }
   const name=fileName();
@@ -2032,7 +2089,7 @@ function paintBackup(){
 function cellStr(v){ return v==null ? "" : String(v).trim(); }
 function parseBackup(buf){
   const wb=XLSX.read(buf,{type:"array"});
-  const ws=wb.Sheets["History"]; if(!ws) throw new Error("This doesn't look like a Stock Tracker backup. It has no History sheet.");
+  const ws=wb.Sheets["History"]; if(!ws) throw new Error("This doesn't look like a Field Stock backup. It has no History sheet.");
   const rows=XLSX.utils.sheet_to_json(ws,{defval:"",raw:false});
   if(rows.length && !("Entry ID" in rows[0] && "Timestamp" in rows[0])) throw new Error("This file is missing the Entry ID or Timestamp column, so it can't be restored.");
   return rowsToEntries(rows);
@@ -2077,7 +2134,7 @@ function mergeEntries(entries){
   if(sealMissing(Store.events)) updated++;
   if(added || updated){
     Store.events.sort((a,b)=>b.ts-a.ts);
-    if(!Store.persist()) throw new Error("This phone is out of space for Stock Tracker data.");
+    if(!Store.persist()) throw new Error("This phone is out of space for Field Stock data.");
   }
   return {added, updated, gone};
 }
@@ -2183,7 +2240,7 @@ function guessColumn(headers, rows){
 }
 $("listIn").addEventListener("change",async()=>{
   const f=$("listIn").files&&$("listIn").files[0]; if(!f) return;
-  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Field Stock."); return; }
   if(!COUNT){ COUNT={startedAt:Date.now(), items:[], list:null}; }
   try{
     const buf=await f.arrayBuffer();
@@ -2352,7 +2409,7 @@ document.addEventListener("click",e=>{
 /* final count list: the inventory team's own file with Y/N, counts and comments filled in */
 function finalCheck(force){
   const L=COUNT.list, x=L.x, err=$("finalErr");
-  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Field Stock."); return; }
   const blank=x.qty.filter(q=>!COUNT.qc||COUNT.qc[q.k]==null);
   if(blank.length){
     err.innerHTML=`<div class="note warn">Enter a count for ${blank.length===1?"1 non-serialized item":blank.length+" non-serialized items"} first. Type 0 if you have none.</div>`;
@@ -2425,7 +2482,7 @@ $("countEnd").addEventListener("click",()=>{
   $("endGo").onclick=()=>{ COUNT=null; try{localStorage.removeItem(CK)}catch(e){} $("countEndConfirm").innerHTML=""; cmpMode="records"; renderCount(); toast("Count ended"); };
 });
 $("countExport").addEventListener("click",async()=>{
-  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!window.XLSX){ toast("Excel tools didn't load. Connect to the internet and reopen Field Stock."); return; }
   const rows=countRows(), hasList=!!COUNT.list;
   const yn=v=>v===null?"":v?"Yes":"No";
   const result=r=> hasList
@@ -2443,7 +2500,7 @@ $("countExport").addEventListener("click",async()=>{
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Count"); XLSX.utils.book_append_sheet(wb,info,"About");
   const d=new Date(COUNT.startedAt), stamp=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   const who=ME.name.replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"");
-  const name=`Stock-Tracker-Count-${who?who+"-":""}${stamp}.xlsx`;
+  const name=`Field-Stock-Count-${who?who+"-":""}${stamp}.xlsx`;
   const file=new File([XLSX.write(wb,{bookType:"xlsx",type:"array"})], name, {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
   try{
     const how=await saveFile(file);
@@ -2530,7 +2587,7 @@ async function startLiveScan(mode){
     LIVE.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}, audio:false});
   }catch(e){ toast(e&&e.name==="NotAllowedError" ? HELP.cam : "Couldn't start the camera. Scan from a photo instead."); return; }
   LIVE.bd = LIVE.bd || await makeDetector();
-  if(!LIVE.bd && !window.ZXing){ stopLiveScan(); toast("Scanner didn't load. Connect to the internet and reopen Stock Tracker."); return; }
+  if(!LIVE.bd && !window.ZXing){ stopLiveScan(); toast("Scanner didn't load. Connect to the internet and reopen Field Stock."); return; }
   if(!LIVE.bd){
     const Z=window.ZXing, BF=Z.BarcodeFormat, hints=new Map();
     hints.set(Z.DecodeHintType.POSSIBLE_FORMATS,[BF.CODE_128,BF.CODE_39,BF.CODE_93,BF.EAN_13,BF.UPC_A,BF.ITF,BF.DATA_MATRIX,BF.QR_CODE].filter(x=>x!==undefined));
@@ -2731,17 +2788,22 @@ async function gapi(url, opts){
   if(!r.ok){ let m=""; try{ m=(await r.json()).error.message; }catch(e){} throw new Error(m||("Google returned error "+r.status)); }
   return r.status===204 ? null : r.json();
 }
+/* sheets made before the rename to Field Stock get the new title; the hidden tag that finds them doesn't change */
+async function gsRenameOld(f){
+  if(!f || !f.name || !/^Stock Tracker\b/.test(f.name)) return;
+  try{ await gapi(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(f.id)}`,{method:"PATCH", body:JSON.stringify({name:f.name.replace(/^Stock Tracker\b/,"Field Stock")})}); }catch(e){}
+}
 async function gsFindOrCreate(){
   if(GS.sheetId){
-    try{ const f=await gapi(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(GS.sheetId)}?fields=id,trashed`); if(!f.trashed) return; }
+    try{ const f=await gapi(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(GS.sheetId)}?fields=id,name,trashed`); if(!f.trashed){ await gsRenameOld(f); return; } }
     catch(e){ if(!e.notFound) throw e; }
     GS.sheetId=""; gsSave();
   }
   // a sheet this app made earlier (another phone, or before the app was reinstalled)
   const q=encodeURIComponent("mimeType='application/vnd.google-apps.spreadsheet' and appProperties has { key='stockTracker' and value='1' } and trashed=false");
   const found=await gapi(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime%20desc&pageSize=5&fields=files(id,name)`);
-  if(found.files && found.files.length){ GS.sheetId=found.files[0].id; gsSave(); return; }
-  const title=`Stock Tracker - ${ME.name}${ME.dealer?" ("+ME.dealer+")":""}`;
+  if(found.files && found.files.length){ GS.sheetId=found.files[0].id; gsSave(); await gsRenameOld(found.files[0]); return; }
+  const title=`Field Stock - ${ME.name}${ME.dealer?" ("+ME.dealer+")":""}`;
   const sh=await gapi(SHEETS,{method:"POST", body:JSON.stringify({properties:{title},
     sheets:[{properties:{title:"History",gridProperties:{frozenRowCount:1}}},{properties:{title:"On hand",gridProperties:{frozenRowCount:1}}}]})});
   GS.sheetId=sh.spreadsheetId; gsSave();
@@ -2792,12 +2854,12 @@ function paintGoogle(){
   const pill=$("gsPill"), txt=$("gsText"), btns=$("gsBtns"), banner=$("gsBanner");
   if(IN_CLAUDE || !GOOGLE_CLIENT_ID){
     pill.textContent = IN_CLAUDE ? "Website only" : "Not set up";
-    txt.textContent = IN_CLAUDE ? "Google Sheets sync works on the Stock Tracker website, not inside Claude." : "Google Sheets sync isn't turned on for this site yet.";
+    txt.textContent = IN_CLAUDE ? "Google Sheets sync works on the Field Stock website, not inside Claude." : "Google Sheets sync isn't turned on for this site yet.";
     btns.innerHTML=""; banner.hidden=true; return;
   }
   if(!GS.connected){
     pill.textContent="Off";
-    txt.innerHTML=`Save every entry to a Google Sheet in the Google account made with your @${WORK_DOMAIN} email. Stock Tracker can only open the sheet it creates, nothing else in your Drive. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>`;
+    txt.innerHTML=`Save every entry to a Google Sheet in the Google account made with your @${WORK_DOMAIN} email. Field Stock can only open the sheet it creates, nothing else in your Drive. <a href="privacy.html" target="_blank" rel="noopener">Privacy policy</a>`;
     btns.innerHTML=`<button class="btn primary" type="button" id="gsConnect">Connect Google Sheets</button><button class="btn ghost" type="button" data-gsguide>How to Set Up</button>`;
     banner.hidden=true; return;
   }
@@ -2848,8 +2910,9 @@ document.addEventListener("visibilitychange", ()=>{ if(!document.hidden && GS.co
 
 /* ---------- appearance ---------- */
 function applyTheme(t){
-  if(t==="light"||t==="dark") document.documentElement.setAttribute("data-theme",t);
+  if(t==="light"||t==="dark"||t==="black") document.documentElement.setAttribute("data-theme",t);
   else document.documentElement.removeAttribute("data-theme");
+  const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute("content", t==="black"?"#000000":"#002B2B");
   document.querySelectorAll("#themeSeg [data-theme-pick]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.themePick===t?"true":"false"));
 }
 let THEME="system"; try{ THEME=localStorage.getItem("techstock.theme")||"system"; }catch(e){}
@@ -2874,6 +2937,7 @@ function showUpdate(){
   const unsaved = (F.lines&&F.lines.length) || (F.serials&&F.serials.length);
   $("updNote").textContent = unsaved ? "Save your log first. Items in the Logs form that aren't saved yet will be cleared." : "Takes a few seconds. Your entries stay on this phone.";
   $("updBar").hidden=false;
+  try{ SWREG.waiting.postMessage("version"); }catch(e){}
 }
 if(SWOK){
   navigator.serviceWorker.register("sw.js").then(reg=>{
@@ -2884,7 +2948,11 @@ if(SWOK){
     setInterval(check, 30*60000);
   }).catch(()=>{});
   navigator.serviceWorker.addEventListener("controllerchange",()=>{ if(updWanted) location.reload(); });
-  try{ caches.keys().then(k=>{ const v=k.find(x=>/^techstock-v\d+$/.test(x)); if(v) $("appVer").textContent="Stock Tracker version "+v.replace("techstock-v",""); }); }catch(e){}
+  navigator.serviceWorker.addEventListener("message",e=>{ const d=e.data||{}; if(d.type!=="version") return;
+    const when=d.updated && !isNaN(Date.parse(d.updated)) ? fmtFull(Date.parse(d.updated)) : "";
+    if(e.source===navigator.serviceWorker.controller || (SWREG && e.source===SWREG.active)) $("appVer").innerHTML=`Field Stock version <b>${esc(d.version)}</b>${when?`<br>Updated ${esc(when)}`:""}`;
+    else if(SWREG && e.source===SWREG.waiting) $("updVer").textContent=` · Version ${d.version}`; });
+  navigator.serviceWorker.ready.then(reg=>{ const w=navigator.serviceWorker.controller||reg.active; if(w) w.postMessage("version"); });
 }
 $("updGo").addEventListener("click",()=>{
   if(!SWREG || !SWREG.waiting){ location.reload(); return; }

@@ -1,7 +1,9 @@
-// Stock Tracker offline cache: lets the app open with no signal after the first visit.
-// Bump VERSION whenever you upload a new index.html. Phones download the new version in the
-// background and the app shows "Update available" so the tech can switch when they're ready.
-const VERSION = "techstock-v48";
+// Field Stock offline cache: lets the app open with no signal after the first visit.
+// Every release: bump VERSION and set UPDATED to the date and time of the release.
+// Phones download the new version in the background and the app shows "Update available"
+// so the tech can switch when they're ready. Both values show at the bottom of the Admin tab.
+const VERSION = "techstock-v54";
+const UPDATED = "2026-11-03T22:20:00-05:00";
 const CORE = [
   "./",
   "./index.html",
@@ -20,7 +22,10 @@ self.addEventListener("install", e => {
   // the first install takes over straight away; later versions wait until the tech taps Update Now
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE.map(u => new Request(u, { cache: "reload" })))).then(() => { if (!self.registration.active) return self.skipWaiting(); }));
 });
-self.addEventListener("message", e => { if (e.data === "update") self.skipWaiting(); });
+self.addEventListener("message", e => {
+  if (e.data === "update") self.skipWaiting();
+  if (e.data === "version" && e.source) e.source.postMessage({ type: "version", version: VERSION.replace("techstock-v", ""), updated: UPDATED });
+});
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));

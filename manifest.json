@@ -1,6 +1,6 @@
 {
-  "name": "Stock Tracker",
-  "short_name": "Stock Tracker",
+  "name": "Field Stock",
+  "short_name": "Field Stock",
   "description": "Log every unit you receive, deploy, transfer, RMA or recycle.",
   "id": "./",
   "start_url": "./",
